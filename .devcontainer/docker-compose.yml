@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: rbag_elections_dev
+    command: sleep infinity
     ports:
       - 4000:4000
     volumes:
