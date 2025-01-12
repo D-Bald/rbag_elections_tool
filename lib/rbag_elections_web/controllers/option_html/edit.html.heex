@@ -5,7 +5,9 @@
 
 <.option_form
   changeset={@changeset}
-  action={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen/#{@option}"}
+  action={~p"/wahlen/#{@wahl_id}/positionen/#{@position_id}/optionen/#{@option}"}
 />
 
-<.back navigate={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen"}>Back to optionen</.back>
+<.back navigate={~p"/wahlen/#{@wahl_id}/positionen/#{@position_id}/optionen"}>
+  Back to optionen
+</.back>

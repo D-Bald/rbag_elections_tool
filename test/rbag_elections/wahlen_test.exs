@@ -57,59 +57,59 @@ defmodule RbagElections.WahlenTest do
     end
   end
 
-  describe "fragen" do
-    alias RbagElections.Wahlen.Frage
+  describe "positionen" do
+    alias RbagElections.Wahlen.Position
 
     import RbagElections.WahlenFixtures
 
     @invalid_attrs %{index: nil, beschreibung: nil}
 
-    test "list_fragen/0 returns all fragen" do
-      frage = frage_fixture()
-      assert Wahlen.list_fragen() == [frage]
+    test "list_positionen/0 returns all positionen" do
+      position = position_fixture()
+      assert Wahlen.list_positionen() == [position]
     end
 
-    test "get_frage!/1 returns the frage with given id" do
-      frage = frage_fixture()
-      assert Wahlen.get_frage!(frage.id) == frage
+    test "get_position!/1 returns the position with given id" do
+      position = position_fixture()
+      assert Wahlen.get_position!(position.id) == position
     end
 
-    test "create_frage/1 with valid data creates a frage" do
+    test "create_position/1 with valid data creates a position" do
       valid_attrs = %{index: 42, beschreibung: "some beschreibung"}
 
-      assert {:ok, %Frage{} = frage} = Wahlen.create_frage(valid_attrs)
-      assert frage.index == 42
-      assert frage.beschreibung == "some beschreibung"
+      assert {:ok, %Position{} = position} = Wahlen.create_position(valid_attrs)
+      assert position.index == 42
+      assert position.beschreibung == "some beschreibung"
     end
 
-    test "create_frage/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Wahlen.create_frage(@invalid_attrs)
+    test "create_position/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Wahlen.create_position(@invalid_attrs)
     end
 
-    test "update_frage/2 with valid data updates the frage" do
-      frage = frage_fixture()
+    test "update_position/2 with valid data updates the position" do
+      position = position_fixture()
       update_attrs = %{index: 43, beschreibung: "some updated beschreibung"}
 
-      assert {:ok, %Frage{} = frage} = Wahlen.update_frage(frage, update_attrs)
-      assert frage.index == 43
-      assert frage.beschreibung == "some updated beschreibung"
+      assert {:ok, %Position{} = position} = Wahlen.update_position(position, update_attrs)
+      assert position.index == 43
+      assert position.beschreibung == "some updated beschreibung"
     end
 
-    test "update_frage/2 with invalid data returns error changeset" do
-      frage = frage_fixture()
-      assert {:error, %Ecto.Changeset{}} = Wahlen.update_frage(frage, @invalid_attrs)
-      assert frage == Wahlen.get_frage!(frage.id)
+    test "update_position/2 with invalid data returns error changeset" do
+      position = position_fixture()
+      assert {:error, %Ecto.Changeset{}} = Wahlen.update_position(position, @invalid_attrs)
+      assert position == Wahlen.get_position!(position.id)
     end
 
-    test "delete_frage/1 deletes the frage" do
-      frage = frage_fixture()
-      assert {:ok, %Frage{}} = Wahlen.delete_frage(frage)
-      assert_raise Ecto.NoResultsError, fn -> Wahlen.get_frage!(frage.id) end
+    test "delete_position/1 deletes the position" do
+      position = position_fixture()
+      assert {:ok, %Position{}} = Wahlen.delete_position(position)
+      assert_raise Ecto.NoResultsError, fn -> Wahlen.get_position!(position.id) end
     end
 
-    test "change_frage/1 returns a frage changeset" do
-      frage = frage_fixture()
-      assert %Ecto.Changeset{} = Wahlen.change_frage(frage)
+    test "change_position/1 returns a position changeset" do
+      position = position_fixture()
+      assert %Ecto.Changeset{} = Wahlen.change_position(position)
     end
   end
 

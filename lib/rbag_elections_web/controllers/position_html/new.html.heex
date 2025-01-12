@@ -1,0 +1,8 @@
+<.header>
+  New Position
+  <:subtitle>Use this form to manage position records in your database.</:subtitle>
+</.header>
+
+<.position_form changeset={@changeset} action={~p"/wahlen/#{@wahl_id}/positionen"} />
+
+<.back navigate={~p"/wahlen/#{@wahl_id}/positionen"}>Back to positionen</.back>

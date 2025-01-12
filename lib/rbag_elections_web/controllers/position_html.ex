@@ -1,13 +1,13 @@
-defmodule RbagElectionsWeb.FrageHTML do
+defmodule RbagElectionsWeb.PositionHTML do
   use RbagElectionsWeb, :html
 
-  embed_templates "frage_html/*"
+  embed_templates "position_html/*"
 
   @doc """
-  Renders a frage form.
+  Renders a position form.
   """
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
 
-  def frage_form(assigns)
+  def position_form(assigns)
 end

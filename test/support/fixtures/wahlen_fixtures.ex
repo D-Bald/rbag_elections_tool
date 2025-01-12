@@ -19,18 +19,18 @@ defmodule RbagElections.WahlenFixtures do
   end
 
   @doc """
-  Generate a frage.
+  Generate a position.
   """
-  def frage_fixture(attrs \\ %{}) do
-    {:ok, frage} =
+  def position_fixture(attrs \\ %{}) do
+    {:ok, position} =
       attrs
       |> Enum.into(%{
         beschreibung: "some beschreibung",
         index: 42
       })
-      |> RbagElections.Wahlen.create_frage()
+      |> RbagElections.Wahlen.create_position()
 
-    frage
+    position
   end
 
   @doc """

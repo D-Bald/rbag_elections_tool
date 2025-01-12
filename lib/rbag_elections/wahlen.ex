@@ -102,104 +102,104 @@ defmodule RbagElections.Wahlen do
     Wahl.changeset(wahl, attrs)
   end
 
-  alias RbagElections.Wahlen.Frage
+  alias RbagElections.Wahlen.Position
 
   @doc """
-  Returns the list of fragen.
+  Returns the list of positionen.
 
   ## Examples
 
-      iex> list_fragen()
-      [%Frage{}, ...]
+      iex> list_positionen()
+      [%Position{}, ...]
 
   """
-  def list_fragen(wahl_id) do
-    Frage
+  def list_positionen(wahl_id) do
+    Position
     |> where(wahl_id: ^wahl_id)
     |> Repo.all()
   end
 
   @doc """
-  Gets a single frage.
+  Gets a single position.
 
-  Raises `Ecto.NoResultsError` if the Frage does not exist.
+  Raises `Ecto.NoResultsError` if the Position does not exist.
 
   ## Examples
 
-      iex> get_frage!(123)
-      %Frage{}
+      iex> get_position!(123)
+      %Position{}
 
-      iex> get_frage!(456)
+      iex> get_position!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_frage!(id), do: Repo.get!(Frage, id)
+  def get_position!(id), do: Repo.get!(Position, id)
 
   @doc """
-  Creates a frage.
+  Creates a position.
 
   ## Examples
 
-      iex> create_frage(%{field: value})
-      {:ok, %Frage{}}
+      iex> create_position(%{field: value})
+      {:ok, %Position{}}
 
-      iex> create_frage(%{field: bad_value})
+      iex> create_position(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_frage(wahl_id, attrs \\ %{}) when is_integer(wahl_id) do
-    %Frage{wahl_id: wahl_id}
-    |> Frage.changeset(attrs)
+  def create_position(wahl_id, attrs \\ %{}) when is_integer(wahl_id) do
+    %Position{wahl_id: wahl_id}
+    |> Position.changeset(attrs)
     |> IO.inspect()
     |> Repo.insert()
   end
 
   @doc """
-  Updates a frage.
+  Updates a position.
 
   ## Examples
 
-      iex> update_frage(frage, %{field: new_value})
-      {:ok, %Frage{}}
+      iex> update_position(position, %{field: new_value})
+      {:ok, %Position{}}
 
-      iex> update_frage(frage, %{field: bad_value})
+      iex> update_position(position, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_frage(%Frage{} = frage, attrs) do
-    frage
-    |> Frage.changeset(attrs)
+  def update_position(%Position{} = position, attrs) do
+    position
+    |> Position.changeset(attrs)
     |> Repo.update()
     |> IO.inspect()
   end
 
   @doc """
-  Deletes a frage.
+  Deletes a position.
 
   ## Examples
 
-      iex> delete_frage(frage)
-      {:ok, %Frage{}}
+      iex> delete_position(position)
+      {:ok, %Position{}}
 
-      iex> delete_frage(frage)
+      iex> delete_position(position)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_frage(%Frage{} = frage) do
-    Repo.delete(frage)
+  def delete_position(%Position{} = position) do
+    Repo.delete(position)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking frage changes.
+  Returns an `%Ecto.Changeset{}` for tracking position changes.
 
   ## Examples
 
-      iex> change_frage(frage)
-      %Ecto.Changeset{data: %Frage{}}
+      iex> change_position(position)
+      %Ecto.Changeset{data: %Position{}}
 
   """
-  def change_frage(%Frage{} = frage, attrs \\ %{}) do
-    Frage.changeset(frage, attrs)
+  def change_position(%Position{} = position, attrs \\ %{}) do
+    Position.changeset(position, attrs)
   end
 
   alias RbagElections.Wahlen.Option
@@ -213,9 +213,9 @@ defmodule RbagElections.Wahlen do
       [%Option{}, ...]
 
   """
-  def list_optionen(frage_id) do
+  def list_optionen(position_id) do
     Option
-    |> where(frage_id: ^frage_id)
+    |> where(position_id: ^position_id)
     |> Repo.all()
   end
 
@@ -247,8 +247,8 @@ defmodule RbagElections.Wahlen do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_option(frage_id, attrs \\ %{}) when is_integer(frage_id) do
-    %Option{frage_id: frage_id}
+  def create_option(position_id, attrs \\ %{}) when is_integer(position_id) do
+    %Option{position_id: position_id}
     |> Option.changeset(attrs)
     |> Repo.insert()
   end

@@ -1,0 +1,16 @@
+<.header>
+  Position {@position.id}
+  <:subtitle>This is a position record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/wahlen/#{@wahl_id}/positionen/#{@position}/edit"}>
+      <.button>Edit position</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Beschreibung">{@position.beschreibung}</:item>
+  <:item title="Index">{@position.index}</:item>
+</.list>
+
+<.back navigate={~p"/wahlen/#{@wahl_id}/positionen"}>Back to positionen</.back>

@@ -20,7 +20,7 @@ defmodule RbagElectionsWeb.Router do
     get "/", PageController, :home
 
     resources "/wahlen", WahlController do
-      resources "/fragen", FrageController do
+      resources "/positionen", PositionController do
         resources "/optionen", OptionController
       end
     end

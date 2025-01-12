@@ -5,7 +5,7 @@ defmodule RbagElections.Wahlen.Wahl do
   schema "wahlen" do
     field :beschreibung, :string
 
-    has_many :fragen, RbagElections.Wahlen.Frage
+    has_many :positionen, RbagElections.Wahlen.Position
 
     timestamps(type: :utc_datetime)
   end

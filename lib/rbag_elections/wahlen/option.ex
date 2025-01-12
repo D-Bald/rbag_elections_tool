@@ -4,7 +4,8 @@ defmodule RbagElections.Wahlen.Option do
 
   schema "optionen" do
     field :wert, :string
-    field :frage_id, :id
+
+    belongs_to :position, RbagElections.Wahlen.Position
 
     timestamps(type: :utc_datetime)
   end
@@ -13,6 +14,7 @@ defmodule RbagElections.Wahlen.Option do
   def changeset(option, attrs) do
     option
     |> cast(attrs, [:wert])
-    |> validate_required([:wert])
+    |> validate_required([:wert, :position_id])
+    |> foreign_key_constraint(:position_id)
   end
 end

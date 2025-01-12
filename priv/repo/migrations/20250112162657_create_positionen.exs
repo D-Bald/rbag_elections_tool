@@ -1,8 +1,8 @@
-defmodule RbagElections.Repo.Migrations.CreateFragen do
+defmodule RbagElections.Repo.Migrations.CreatePositionen do
   use Ecto.Migration
 
   def change do
-    create table(:fragen) do
+    create table(:positionen) do
       add :beschreibung, :string
       add :index, :integer
       add :wahl_id, references(:wahlen, on_delete: :delete_all)
@@ -10,6 +10,6 @@ defmodule RbagElections.Repo.Migrations.CreateFragen do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:fragen, [:wahl_id])
+    create index(:positionen, [:wahl_id])
   end
 end
