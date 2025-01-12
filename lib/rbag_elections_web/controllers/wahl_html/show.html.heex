@@ -1,0 +1,15 @@
+<.header>
+  Wahl {@wahl.id}
+  <:subtitle>This is a wahl record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/wahlen/#{@wahl}/edit"}>
+      <.button>Edit wahl</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Beschreibung">{@wahl.beschreibung}</:item>
+</.list>
+
+<.back navigate={~p"/wahlen"}>Back to wahlen</.back>

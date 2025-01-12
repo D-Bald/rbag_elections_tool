@@ -1,0 +1,23 @@
+<.header>
+  Listing Wahlen
+  <:actions>
+    <.link href={~p"/wahlen/new"}>
+      <.button>New Wahl</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table id="wahlen" rows={@wahlen} row_click={&JS.navigate(~p"/wahlen/#{&1}")}>
+  <:col :let={wahl} label="Beschreibung">{wahl.beschreibung}</:col>
+  <:action :let={wahl}>
+    <div class="sr-only">
+      <.link navigate={~p"/wahlen/#{wahl}"}>Show</.link>
+    </div>
+    <.link navigate={~p"/wahlen/#{wahl}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={wahl}>
+    <.link href={~p"/wahlen/#{wahl}"} method="delete" data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>

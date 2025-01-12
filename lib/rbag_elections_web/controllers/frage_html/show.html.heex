@@ -1,0 +1,16 @@
+<.header>
+  Frage {@frage.id}
+  <:subtitle>This is a frage record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/wahlen/#{@wahl_id}/fragen/#{@frage}/edit"}>
+      <.button>Edit frage</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Beschreibung">{@frage.beschreibung}</:item>
+  <:item title="Index">{@frage.index}</:item>
+</.list>
+
+<.back navigate={~p"/wahlen/#{@wahl_id}/fragen"}>Back to fragen</.back>

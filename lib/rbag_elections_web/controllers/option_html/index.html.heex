@@ -1,0 +1,35 @@
+<.header>
+  Listing Optionen
+  <:actions>
+    <.link href={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen/new"}>
+      <.button>New Option</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="optionen"
+  rows={@optionen}
+  row_click={&JS.navigate(~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen/#{&1}")}
+>
+  <:col :let={option} label="Wert">{option.wert}</:col>
+  <:action :let={option}>
+    <div class="sr-only">
+      <.link navigate={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen/#{option}"}>
+        Show
+      </.link>
+    </div>
+    <.link navigate={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen/#{option}/edit"}>
+      Edit
+    </.link>
+  </:action>
+  <:action :let={option}>
+    <.link
+      href={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen/#{option}"}
+      method="delete"
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>

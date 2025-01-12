@@ -1,0 +1,8 @@
+<.header>
+  Edit Frage {@frage.id}
+  <:subtitle>Use this form to manage frage records in your database.</:subtitle>
+</.header>
+
+<.frage_form changeset={@changeset} action={~p"/wahlen/#{@wahl_id}/fragen/#{@frage}"} />
+
+<.back navigate={~p"/wahlen/#{@wahl_id}/fragen"}>Back to fragen</.back>

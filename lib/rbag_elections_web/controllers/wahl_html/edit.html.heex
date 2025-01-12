@@ -1,0 +1,8 @@
+<.header>
+  Edit Wahl {@wahl.id}
+  <:subtitle>Use this form to manage wahl records in your database.</:subtitle>
+</.header>
+
+<.wahl_form changeset={@changeset} action={~p"/wahlen/#{@wahl}"} />
+
+<.back navigate={~p"/wahlen"}>Back to wahlen</.back>

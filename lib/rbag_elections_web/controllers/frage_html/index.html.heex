@@ -1,0 +1,28 @@
+<.header>
+  Listing Fragen
+  <:actions>
+    <.link href={~p"/wahlen/#{@wahl_id}/fragen/new"}>
+      <.button>New Frage</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table id="fragen" rows={@fragen} row_click={&JS.navigate(~p"/wahlen/#{@wahl_id}/fragen/#{&1}")}>
+  <:col :let={frage} label="Beschreibung">{frage.beschreibung}</:col>
+  <:col :let={frage} label="Index">{frage.index}</:col>
+  <:action :let={frage}>
+    <div class="sr-only">
+      <.link navigate={~p"/wahlen/#{@wahl_id}/fragen/#{frage}"}>Show</.link>
+    </div>
+    <.link navigate={~p"/wahlen/#{@wahl_id}/fragen/#{frage}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={frage}>
+    <.link
+      href={~p"/wahlen/#{@wahl_id}/fragen/#{frage}"}
+      method="delete"
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>

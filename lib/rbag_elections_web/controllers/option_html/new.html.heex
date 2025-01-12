@@ -1,0 +1,11 @@
+<.header>
+  New Option
+  <:subtitle>Use this form to manage option records in your database.</:subtitle>
+</.header>
+
+<.option_form
+  changeset={@changeset}
+  action={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen"}
+/>
+
+<.back navigate={~p"/wahlen/#{@wahl_id}/fragen/#{@frage_id}/optionen"}>Back to optionen</.back>

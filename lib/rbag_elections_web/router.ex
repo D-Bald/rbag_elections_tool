@@ -18,6 +18,12 @@ defmodule RbagElectionsWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    resources "/wahlen", WahlController do
+      resources "/fragen", FrageController do
+        resources "/optionen", OptionController
+      end
+    end
   end
 
   # Other scopes may use custom stacks.
