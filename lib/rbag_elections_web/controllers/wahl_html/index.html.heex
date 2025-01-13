@@ -8,7 +8,7 @@
 </.header>
 
 <.table id="wahlen" rows={@wahlen} row_click={&JS.navigate(~p"/wahlen/#{&1}")}>
-  <:col :let={wahl} label="Beschreibung">{wahl.beschreibung}</:col>
+  <:col :let={wahl} label="Slug">{wahl.slug}</:col>
   <:action :let={wahl}>
     <div class="sr-only">
       <.link navigate={~p"/wahlen/#{wahl}"}>Show</.link>

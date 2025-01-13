@@ -1,0 +1,26 @@
+<.header>
+  Durchgang {@durchgang.id}
+  <:subtitle>This is a durchgang record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/durchgaenge/#{@durchgang}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit durchgang</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Status">{@durchgang.status}</:item>
+</.list>
+
+<.back navigate={~p"/durchgaenge"}>Back to durchgaenge</.back>
+
+<.modal :if={@live_action == :edit} id="durchgang-modal" show on_cancel={JS.patch(~p"/durchgaenge/#{@durchgang}")}>
+  <.live_component
+    module={RbagElectionsWeb.DurchgangLive.FormComponent}
+    id={@durchgang.id}
+    title={@page_title}
+    action={@live_action}
+    durchgang={@durchgang}
+    patch={~p"/durchgaenge/#{@durchgang}"}
+  />
+</.modal>

@@ -19,6 +19,24 @@ defmodule RbagElectionsWeb.Router do
 
     get "/", PageController, :home
 
+    live "/tokens", TokenLive.Index, :index
+    live "/tokens/new", TokenLive.Index, :new
+    live "/tokens/:id/edit", TokenLive.Index, :edit
+    live "/tokens/:id", TokenLive.Show, :show
+    live "/tokens/:id/show/edit", TokenLive.Show, :edit
+
+    live "/durchgaenge", DurchgangLive.Index, :index
+    live "/durchgaenge/new", DurchgangLive.Index, :new
+    live "/durchgaenge/:id/edit", DurchgangLive.Index, :edit
+    live "/durchgaenge/:id", DurchgangLive.Show, :show
+    live "/durchgaenge/:id/show/edit", DurchgangLive.Show, :edit
+
+    live "/submissions", SubmissionLive.Index, :index
+    live "/submissions/new", SubmissionLive.Index, :new
+    live "/submissions/:id/edit", SubmissionLive.Index, :edit
+    live "/submissions/:id", SubmissionLive.Show, :show
+    live "/submissions/:id/show/edit", SubmissionLive.Show, :edit
+
     resources "/wahlen", WahlController do
       resources "/positionen", PositionController do
         resources "/optionen", OptionController

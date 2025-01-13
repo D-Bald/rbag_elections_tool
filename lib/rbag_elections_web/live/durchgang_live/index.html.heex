@@ -1,0 +1,41 @@
+<.header>
+  Listing Durchgaenge
+  <:actions>
+    <.link patch={~p"/durchgaenge/new"}>
+      <.button>New Durchgang</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="durchgaenge"
+  rows={@streams.durchgaenge}
+  row_click={fn {_id, durchgang} -> JS.navigate(~p"/durchgaenge/#{durchgang}") end}
+>
+  <:col :let={{_id, durchgang}} label="Status">{durchgang.status}</:col>
+  <:action :let={{_id, durchgang}}>
+    <div class="sr-only">
+      <.link navigate={~p"/durchgaenge/#{durchgang}"}>Show</.link>
+    </div>
+    <.link patch={~p"/durchgaenge/#{durchgang}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, durchgang}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: durchgang.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="durchgang-modal" show on_cancel={JS.patch(~p"/durchgaenge")}>
+  <.live_component
+    module={RbagElectionsWeb.DurchgangLive.FormComponent}
+    id={@durchgang.id || :new}
+    title={@page_title}
+    action={@live_action}
+    durchgang={@durchgang}
+    patch={~p"/durchgaenge"}
+  />
+</.modal>

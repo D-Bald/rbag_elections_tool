@@ -11,7 +11,7 @@ defmodule RbagElections.WahlenFixtures do
     {:ok, wahl} =
       attrs
       |> Enum.into(%{
-        beschreibung: "some beschreibung"
+        slug: "some slug"
       })
       |> RbagElections.Wahlen.create_wahl()
 
@@ -25,7 +25,7 @@ defmodule RbagElections.WahlenFixtures do
     {:ok, position} =
       attrs
       |> Enum.into(%{
-        beschreibung: "some beschreibung",
+        slug: "some slug",
         index: 42
       })
       |> RbagElections.Wahlen.create_position()
@@ -45,5 +45,19 @@ defmodule RbagElections.WahlenFixtures do
       |> RbagElections.Wahlen.create_option()
 
     option
+  end
+
+  @doc """
+  Generate a durchgang.
+  """
+  def durchgang_fixture(attrs \\ %{}) do
+    {:ok, durchgang} =
+      attrs
+      |> Enum.into(%{
+        status: "some status"
+      })
+      |> RbagElections.Wahlen.create_durchgang()
+
+    durchgang
   end
 end

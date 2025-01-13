@@ -3,9 +3,9 @@ defmodule RbagElectionsWeb.WahlControllerTest do
 
   import RbagElections.WahlenFixtures
 
-  @create_attrs %{beschreibung: "some beschreibung"}
-  @update_attrs %{beschreibung: "some updated beschreibung"}
-  @invalid_attrs %{beschreibung: nil}
+  @create_attrs %{slug: "some slug"}
+  @update_attrs %{slug: "some updated slug"}
+  @invalid_attrs %{slug: nil}
 
   describe "index" do
     test "lists all wahlen", %{conn: conn} do
@@ -55,7 +55,7 @@ defmodule RbagElectionsWeb.WahlControllerTest do
       assert redirected_to(conn) == ~p"/wahlen/#{wahl}"
 
       conn = get(conn, ~p"/wahlen/#{wahl}")
-      assert html_response(conn, 200) =~ "some updated beschreibung"
+      assert html_response(conn, 200) =~ "some updated slug"
     end
 
     test "renders errors when data is invalid", %{conn: conn, wahl: wahl} do
