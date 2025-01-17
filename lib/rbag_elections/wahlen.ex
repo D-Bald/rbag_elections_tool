@@ -38,6 +38,26 @@ defmodule RbagElections.Wahlen do
   def get_wahl!(id), do: Repo.get!(Wahl, id)
 
   @doc """
+  Gets a single wahl by slug.
+
+  Raises `Ecto.NoResultsError` if the Wahl does not exist.
+
+  ## Examples
+
+      iex> get_wahl_by_slug!("some-slug")
+      %Wahl{}
+
+      iex> get_wahl_by_slug!("non-existent-slug")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_wahl_by_slug!(slug) do
+    Wahl
+    |> where(slug: ^slug)
+    |> Repo.one!()
+  end
+
+  @doc """
   Creates a wahl.
 
   ## Examples
@@ -113,9 +133,11 @@ defmodule RbagElections.Wahlen do
       [%Position{}, ...]
 
   """
-  def list_positionen(wahl_id) do
+  def list_positionen(wahl_slug) do
+    wahl = get_wahl_by_slug!(wahl_slug)
+
     Position
-    |> where(wahl_id: ^wahl_id)
+    |> where(wahl_id: ^wahl.id)
     |> Repo.all()
   end
 
@@ -147,8 +169,10 @@ defmodule RbagElections.Wahlen do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_position(wahl_id, attrs \\ %{}) when is_integer(wahl_id) do
-    %Position{wahl_id: wahl_id}
+  def create_position(wahl_slug, attrs \\ %{}) do
+    wahl = get_wahl_by_slug!(wahl_slug)
+
+    %Position{wahl_id: wahl.id}
     |> Position.changeset(attrs)
     |> IO.inspect()
     |> Repo.insert()

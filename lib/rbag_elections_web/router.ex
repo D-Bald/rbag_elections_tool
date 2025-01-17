@@ -25,23 +25,38 @@ defmodule RbagElectionsWeb.Router do
     live "/tokens/:id", TokenLive.Show, :show
     live "/tokens/:id/show/edit", TokenLive.Show, :edit
 
-    live "/durchgaenge", DurchgangLive.Index, :index
-    live "/durchgaenge/new", DurchgangLive.Index, :new
-    live "/durchgaenge/:id/edit", DurchgangLive.Index, :edit
-    live "/durchgaenge/:id", DurchgangLive.Show, :show
-    live "/durchgaenge/:id/show/edit", DurchgangLive.Show, :edit
-
-    live "/submissions", SubmissionLive.Index, :index
-    live "/submissions/new", SubmissionLive.Index, :new
-    live "/submissions/:id/edit", SubmissionLive.Index, :edit
-    live "/submissions/:id", SubmissionLive.Show, :show
-    live "/submissions/:id/show/edit", SubmissionLive.Show, :edit
-
-    resources "/wahlen", WahlController do
+    resources "/wahlen", WahlController, param: "slug" do
       resources "/positionen", PositionController do
         resources "/optionen", OptionController
       end
     end
+
+    live "/:wahl_slug/abstimmungen", AbstimmungLive.Index, :index
+    live "/:wahl_slug/abstimmungen/new", AbstimmungLive.Index, :new
+    live "/:wahl_slug/abstimmungen/:id/edit", AbstimmungLive.Index, :edit
+
+    live "/:wahl_slug/abstimmungen/:id", AbstimmungLive.Show, :show
+    live "/:wahl_slug/abstimmungen/:id/show/edit", AbstimmungLive.Show, :edit
+
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/abgaben", AbgabeLive.Index, :index
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/abgaben/new", AbgabeLive.Index, :new
+
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/abgaben/:id/edit",
+         AbgabeLive.Index,
+         :edit
+
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/abgaben/:id", AbgabeLive.Show, :show
+
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/abgaben/:id/show/edit",
+         AbgabeLive.Show,
+         :edit
+
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/stimmen", StimmeLive.Index, :index
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/stimmen/new", StimmeLive.Index, :new
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/stimmen/:id/edit", StimmeLive.Index, :edit
+
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/stimmen/:id", StimmeLive.Show, :show
+    live "/:wahl_slug/abstimmungen/:abstimmung_id/stimmen/:id/show/edit", StimmeLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

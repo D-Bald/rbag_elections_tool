@@ -1,7 +1,7 @@
 <.header>
   Listing Positionen
   <:actions>
-    <.link href={~p"/wahlen/#{@wahl_id}/positionen/new"}>
+    <.link href={~p"/wahlen/#{@wahl_slug}/positionen/new"}>
       <.button>New Position</.button>
     </.link>
   </:actions>
@@ -10,19 +10,21 @@
 <.table
   id="positionen"
   rows={@positionen}
-  row_click={&JS.navigate(~p"/wahlen/#{@wahl_id}/positionen/#{&1}")}
+  row_click={&JS.navigate(~p"/wahlen/#{@wahl_slug}/positionen/#{&1}")}
 >
-  <:col :let={position} label="Beschreibung">{position.beschreibung}</:col>
-  <:col :let={position} label="Index">{position.index}</:col>
+  <:col :let={position} label="Name">{position.name}</:col>
+  <:action :let={position}>
+    <.link navigate={~p"/wahlen/#{@wahl_slug}/positionen/#{position}/optionen"}>Optionen</.link>
+  </:action>
   <:action :let={position}>
     <div class="sr-only">
-      <.link navigate={~p"/wahlen/#{@wahl_id}/positionen/#{position}"}>Show</.link>
+      <.link navigate={~p"/wahlen/#{@wahl_slug}/positionen/#{position}"}>Show</.link>
     </div>
-    <.link navigate={~p"/wahlen/#{@wahl_id}/positionen/#{position}/edit"}>Edit</.link>
+    <.link navigate={~p"/wahlen/#{@wahl_slug}/positionen/#{position}/edit"}>Edit</.link>
   </:action>
   <:action :let={position}>
     <.link
-      href={~p"/wahlen/#{@wahl_id}/positionen/#{position}"}
+      href={~p"/wahlen/#{@wahl_slug}/positionen/#{position}"}
       method="delete"
       data-confirm="Are you sure?"
     >

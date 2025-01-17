@@ -3,8 +3,7 @@ defmodule RbagElections.Wahlen.Position do
   import Ecto.Changeset
 
   schema "positionen" do
-    field :index, :integer
-    field :beschreibung, :string
+    field :name, :string
 
     belongs_to :wahl, RbagElections.Wahlen.Wahl
     has_many :optionen, RbagElections.Wahlen.Option
@@ -15,8 +14,8 @@ defmodule RbagElections.Wahlen.Position do
   @doc false
   def changeset(position, attrs) do
     position
-    |> cast(attrs, [:beschreibung, :index])
-    |> validate_required([:beschreibung, :index, :wahl_id])
+    |> cast(attrs, [:name, :wahl_id])
+    |> validate_required([:name, :wahl_id])
     |> foreign_key_constraint(:wahl_id)
   end
 end

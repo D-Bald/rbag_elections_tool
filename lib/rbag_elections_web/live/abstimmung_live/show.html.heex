@@ -1,0 +1,32 @@
+<.header>
+  Abstimmung {@abstimmung.id}
+  <:subtitle>This is a abstimmung record from your database.</:subtitle>
+  <:actions>
+    <.link
+      patch={~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung}/show/edit"}
+      phx-click={JS.push_focus()}
+    >
+      <.button>Edit abstimmung</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list></.list>
+
+<.back navigate={~p"/#{@wahl_slug}/abstimmungen"}>Back to abstimmungen</.back>
+
+<.modal
+  :if={@live_action == :edit}
+  id="abstimmung-modal"
+  show
+  on_cancel={JS.patch(~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung}")}
+>
+  <.live_component
+    module={RbagElectionsWeb.AbstimmungLive.FormComponent}
+    id={@abstimmung.id}
+    title={@page_title}
+    action={@live_action}
+    abstimmung={@abstimmung}
+    patch={~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung}"}
+  />
+</.modal>

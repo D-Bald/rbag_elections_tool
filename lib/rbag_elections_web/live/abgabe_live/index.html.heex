@@ -1,0 +1,55 @@
+<.header>
+  Listing abgaben
+  <:actions>
+    <.link patch={~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung_id}/abgaben/new"}>
+      <.button>New abgabe</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="abgaben"
+  rows={@streams.abgaben}
+  row_click={
+    fn {_id, abgabe} ->
+      JS.navigate(~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung_id}/abgaben/#{abgabe}")
+    end
+  }
+>
+  <:col :let={{_id, abgabe}} label="Token Besitzer">{abgabe.token.besitzer}</:col>
+  <:col :let={{_id, abgabe}} label="Besitzer">{abgabe.position.beschreibung}</:col>
+  <:action :let={{_id, abgabe}}>
+    <div class="sr-only">
+      <.link navigate={~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung_id}/abgaben/#{abgabe}"}>
+        Show
+      </.link>
+    </div>
+    <.link patch={~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung_id}/abgaben/#{abgabe}/edit"}>
+      Edit
+    </.link>
+  </:action>
+  <:action :let={{id, abgabe}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: abgabe.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal
+  :if={@live_action in [:new, :edit]}
+  id="abgabe-modal"
+  show
+  on_cancel={JS.patch(~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung_id}/abgaben")}
+>
+  <.live_component
+    module={RbagElectionsWeb.AbgabeLive.FormComponent}
+    id={@abgabe.id || :new}
+    title={@page_title}
+    action={@live_action}
+    abgabe={@abgabe}
+    patch={~p"/#{@wahl_slug}/abstimmungen/#{@abstimmung_id}/abgaben"}
+  />
+</.modal>

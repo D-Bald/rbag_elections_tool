@@ -1,20 +1,18 @@
-defmodule RbagElections.SubmissionsFixtures do
+defmodule RbagElections.AbgabenFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `RbagElections.Submissions` context.
+  entities via the `RbagElections.abgaben` context.
   """
 
   @doc """
-  Generate a submission.
+  Generate a abgabe.
   """
-  def submission_fixture(attrs \\ %{}) do
-    {:ok, submission} =
+  def abgabe_fixture(attrs \\ %{}) do
+    {:ok, abgabe} =
       attrs
-      |> Enum.into(%{
+      |> Enum.into(%{})
+      |> RbagElections.abgaben().create_abgabe()
 
-      })
-      |> RbagElections.Submissions.create_submission()
-
-    submission
+    abgabe
   end
 end

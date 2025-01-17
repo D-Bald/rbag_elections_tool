@@ -13,7 +13,7 @@ defmodule RbagElections.Wahlen.Option do
   @doc false
   def changeset(option, attrs) do
     option
-    |> cast(attrs, [:wert])
+    |> cast(attrs, [:wert, :position_id])
     |> validate_required([:wert, :position_id])
     |> foreign_key_constraint(:position_id)
   end

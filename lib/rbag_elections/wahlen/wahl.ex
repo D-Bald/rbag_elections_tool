@@ -2,8 +2,11 @@ defmodule RbagElections.Wahlen.Wahl do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Phoenix.Param, key: :slug}
   schema "wahlen" do
     field :slug, :string
+
+    has_one :aktuelle_abstimmung, RbagElections.Abstimmungen.Abstimmung, foreign_key: :wahl_id
 
     has_many :positionen, RbagElections.Wahlen.Position
 

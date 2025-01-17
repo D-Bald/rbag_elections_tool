@@ -1,57 +1,58 @@
-defmodule RbagElections.SubmissionsTest do
+defmodule RbagElections.abgabenTest() do
   use RbagElections.DataCase
 
-  alias RbagElections.Submissions
+  alias RbagElections.abgaben()
 
-  describe "submissions" do
-    alias RbagElections.Submissions.Submission
+  describe "abgaben" do
+    alias RbagElections.abgaben().abgabe
 
-    import RbagElections.SubmissionsFixtures
+    import RbagElections.abgabenFixtures()
 
     @invalid_attrs %{}
 
-    test "list_submissions/0 returns all submissions" do
-      submission = submission_fixture()
-      assert Submissions.list_submissions() == [submission]
+    test "list_abgaben/0 returns all abgaben" do
+      abgabe = abgabe_fixture()
+      assert Abstimmungen.list_abgaben() == [abgabe]
     end
 
-    test "get_submission!/1 returns the submission with given id" do
-      submission = submission_fixture()
-      assert Submissions.get_submission!(submission.id) == submission
+    test "get_abgabe!/1 returns the abgabe with given id" do
+      abgabe = abgabe_fixture()
+      assert Abstimmungen.get_abgabe!(abgabe.id) == abgabe
     end
 
-    test "create_submission/1 with valid data creates a submission" do
+    test "create_abgabe/1 with valid data creates a abgabe" do
       valid_attrs = %{}
 
-      assert {:ok, %Submission{} = submission} = Submissions.create_submission(valid_attrs)
+      assert {:ok, %abgabe{} = abgabe} = Abstimmungen.create_abgabe(valid_attrs)
     end
 
-    test "create_submission/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Submissions.create_submission(@invalid_attrs)
+    test "create_abgabe/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Abstimmungen.create_abgabe(@invalid_attrs)
     end
 
-    test "update_submission/2 with valid data updates the submission" do
-      submission = submission_fixture()
+    test "update_abgabe/2 with valid data updates the abgabe" do
+      abgabe = abgabe_fixture()
       update_attrs = %{}
 
-      assert {:ok, %Submission{} = submission} = Submissions.update_submission(submission, update_attrs)
+      assert {:ok, %abgabe{} = abgabe} =
+               Abstimmungen.update_abgabe(abgabe, update_attrs)
     end
 
-    test "update_submission/2 with invalid data returns error changeset" do
-      submission = submission_fixture()
-      assert {:error, %Ecto.Changeset{}} = Submissions.update_submission(submission, @invalid_attrs)
-      assert submission == Submissions.get_submission!(submission.id)
+    test "update_abgabe/2 with invalid data returns error changeset" do
+      abgabe = abgabe_fixture()
+      assert {:error, %Ecto.Changeset{}} = Abstimmungen.update_abgabe(abgabe, @invalid_attrs)
+      assert abgabe == Abstimmungen.get_abgabe!(abgabe.id)
     end
 
-    test "delete_submission/1 deletes the submission" do
-      submission = submission_fixture()
-      assert {:ok, %Submission{}} = Submissions.delete_submission(submission)
-      assert_raise Ecto.NoResultsError, fn -> Submissions.get_submission!(submission.id) end
+    test "delete_abgabe/1 deletes the abgabe" do
+      abgabe = abgabe_fixture()
+      assert {:ok, %abgabe{}} = Abstimmungen.delete_abgabe(abgabe)
+      assert_raise Ecto.NoResultsError, fn -> Abstimmungen.get_abgabe!(abgabe.id) end
     end
 
-    test "change_submission/1 returns a submission changeset" do
-      submission = submission_fixture()
-      assert %Ecto.Changeset{} = Submissions.change_submission(submission)
+    test "change_abgabe/1 returns a abgabe changeset" do
+      abgabe = abgabe_fixture()
+      assert %Ecto.Changeset{} = Abstimmungen.change_abgabe(abgabe)
     end
   end
 end
