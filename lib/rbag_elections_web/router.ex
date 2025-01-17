@@ -1,6 +1,8 @@
 defmodule RbagElectionsWeb.Router do
   use RbagElectionsWeb, :router
 
+  import RbagElectionsWeb.AdminAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule RbagElectionsWeb.Router do
     plug :put_root_layout, html: {RbagElectionsWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_admin
   end
 
   pipeline :api do
@@ -78,6 +81,44 @@ defmodule RbagElectionsWeb.Router do
 
       live_dashboard "/dashboard", metrics: RbagElectionsWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  ## Authentication routes
+
+  scope "/", RbagElectionsWeb do
+    pipe_through [:browser, :redirect_if_admin_is_authenticated]
+
+    live_session :redirect_if_admin_is_authenticated,
+      on_mount: [{RbagElectionsWeb.AdminAuth, :redirect_if_admin_is_authenticated}] do
+      live "/admins/register", AdminRegistrationLive, :new
+      live "/admins/log_in", AdminLoginLive, :new
+      live "/admins/reset_password", AdminForgotPasswordLive, :new
+      live "/admins/reset_password/:token", AdminResetPasswordLive, :edit
+    end
+
+    post "/admins/log_in", AdminSessionController, :create
+  end
+
+  scope "/", RbagElectionsWeb do
+    pipe_through [:browser, :require_authenticated_admin]
+
+    live_session :require_authenticated_admin,
+      on_mount: [{RbagElectionsWeb.AdminAuth, :ensure_authenticated}] do
+      live "/admins/settings", AdminSettingsLive, :edit
+      live "/admins/settings/confirm_email/:token", AdminSettingsLive, :confirm_email
+    end
+  end
+
+  scope "/", RbagElectionsWeb do
+    pipe_through [:browser]
+
+    delete "/admins/log_out", AdminSessionController, :delete
+
+    live_session :current_admin,
+      on_mount: [{RbagElectionsWeb.AdminAuth, :mount_current_admin}] do
+      live "/admins/confirm/:token", AdminConfirmationLive, :edit
+      live "/admins/confirm", AdminConfirmationInstructionsLive, :new
     end
   end
 end
