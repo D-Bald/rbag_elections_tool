@@ -48,16 +48,16 @@ defmodule RbagElections.WahlenFixtures do
   end
 
   @doc """
-  Generate a durchgang.
+  Generate a abstimmung.
   """
-  def durchgang_fixture(attrs \\ %{}) do
-    {:ok, durchgang} =
+  def abstimmung_fixture(attrs \\ %{}) do
+    {:ok, abstimmung} =
       attrs
       |> Enum.into(%{
         status: "some status"
       })
-      |> RbagElections.Wahlen.create_durchgang()
+      |> RbagElections.Abstimmungen.create_abstimmung()
 
-    durchgang
+    abstimmung
   end
 end

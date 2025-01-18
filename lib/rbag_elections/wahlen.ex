@@ -194,7 +194,6 @@ defmodule RbagElections.Wahlen do
     position
     |> Position.changeset(attrs)
     |> Repo.update()
-    |> IO.inspect()
   end
 
   @doc """
@@ -224,6 +223,22 @@ defmodule RbagElections.Wahlen do
   """
   def change_position(%Position{} = position, attrs \\ %{}) do
     Position.changeset(position, attrs)
+  end
+
+  @doc """
+  Returns the list of Abstimmungen.
+
+  ## Examples
+
+      iex> list_Abstimmungen
+      [%Abgabe{}, ...]
+
+  """
+  def get_position_with_options(abstimmung_id) do
+    Abgabe
+    |> where(abstimmung_id: ^abstimmung_id)
+    |> preload(optionen: [:wert])
+    |> Repo.one()
   end
 
   alias RbagElections.Wahlen.Option

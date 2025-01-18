@@ -2,46 +2,70 @@ defmodule RbagElectionsWeb.TokenLive.Index do
   use RbagElectionsWeb, :live_view
 
   alias RbagElections.Freigabe
-  alias RbagElections.Freigabe.Token
 
-  @impl true
+  def render(assigns) do
+    ~H"""
+    <div class="mx-auto max-w-7xl">
+      <.header class="text-center">
+        Benutzer bestätigen
+      </.header>
+
+      <h2 class="text-lg">Pending Tokens</h2>
+      <.table id="pending_tokens" rows={@pending_tokens}>
+        <:col :let={token} label="Name">{token.besitzer}</:col>
+        <:action :let={token}>
+          <button phx-click="confirm" phx-value-id={token.id}>Bestätigen</button>
+        </:action>
+      </.table>
+
+      <h2 class="text-lg">Registered Users</h2>
+      <.table id="confirmed_tokens" rows={@confirmed_tokens}>
+        <:col :let={token} label="Name">{token.besitzer}</:col>
+        <:action :let={token}>
+          <button phx-click="delete" phx-value-id={token.id}>Löschen</button>
+        </:action>
+      </.table>
+    </div>
+    """
+  end
+
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :tokens, Freigabe.list_tokens())}
+    pending_tokens = Freigabe.list_pending_tokens()
+    confirmed_tokens = Freigabe.list_confirmed_tokens()
+
+    {:ok, assign(socket, pending_tokens: pending_tokens, confirmed_tokens: confirmed_tokens)}
   end
 
-  @impl true
-  def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  def handle_event("confirm", %{"id" => id}, socket) do
+    token =
+      socket.assigns.pending_tokens
+      |> Enum.find(fn token -> token.id == String.to_integer(id) end)
+
+    case Freigabe.confirm_token(token) do
+      {:ok, token} ->
+        {:noreply,
+         socket
+         |> update(:pending_tokens, fn tokens -> Enum.reject(tokens, &(&1.id == id)) end)
+         |> update(:confirmed_tokens, fn tokens -> [token | tokens] end)}
+
+      {:error, _reason} ->
+        {:noreply, socket}
+    end
   end
 
-  defp apply_action(socket, :edit, %{"id" => id}) do
-    socket
-    |> assign(:page_title, "Edit Token")
-    |> assign(:token, Freigabe.get_token!(id))
-  end
-
-  defp apply_action(socket, :new, _params) do
-    socket
-    |> assign(:page_title, "New Token")
-    |> assign(:token, %Token{})
-  end
-
-  defp apply_action(socket, :index, _params) do
-    socket
-    |> assign(:page_title, "Listing Tokens")
-    |> assign(:token, nil)
-  end
-
-  @impl true
-  def handle_info({RbagElectionsWeb.TokenLive.FormComponent, {:saved, token}}, socket) do
-    {:noreply, stream_insert(socket, :tokens, token)}
-  end
-
-  @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    token = Freigabe.get_token!(id)
-    {:ok, _} = Freigabe.delete_token(token)
+    token =
+      socket.assigns.confirmed_tokens
+      |> Enum.find(fn token -> token.id == String.to_integer(id) end)
 
-    {:noreply, stream_delete(socket, :tokens, token)}
+    case Freigabe.delete_token(token) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> update(:confirmed_tokens, fn tokens -> Enum.reject(tokens, &(&1.id == token.id)) end)}
+
+      {:error, _reason} ->
+        {:noreply, socket}
+    end
   end
 end

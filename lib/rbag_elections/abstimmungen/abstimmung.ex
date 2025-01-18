@@ -4,6 +4,7 @@ defmodule RbagElections.Abstimmungen.Abstimmung do
 
   schema "abstimmungen" do
     belongs_to :wahl, RbagElections.Wahlen.Wahl
+    belongs_to :position, RbagElections.Wahlen.Position
     has_many :abgaben, RbagElections.Abstimmungen.Abgabe
 
     timestamps(type: :utc_datetime)

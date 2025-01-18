@@ -1,10 +1,10 @@
 defmodule RbagElections.abgabenTest() do
   use RbagElections.DataCase
 
-  alias RbagElections.abgaben()
+  alias RbagElections.Abstimmungen
 
   describe "abgaben" do
-    alias RbagElections.abgaben().abgabe
+    alias RbagElections.Abstimmungen.abgabe()
 
     import RbagElections.abgabenFixtures()
 
@@ -12,7 +12,7 @@ defmodule RbagElections.abgabenTest() do
 
     test "list_abgaben/0 returns all abgaben" do
       abgabe = abgabe_fixture()
-      assert Abstimmungen.list_abgaben() == [abgabe]
+      assert Abstimmungen.list_Abstimmungen() == [abgabe]
     end
 
     test "get_abgabe!/1 returns the abgabe with given id" do

@@ -6,7 +6,7 @@ defmodule RbagElectionsWeb.AbgabeLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :abgaben, Abstimmungen.list_abgaben())}
+    {:ok, stream(socket, :abgaben, Abstimmungen.list_abstimmungen())}
   end
 
   @impl true

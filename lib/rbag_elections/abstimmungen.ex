@@ -7,6 +7,9 @@ defmodule RbagElections.Abstimmungen do
   alias RbagElections.Repo
 
   alias RbagElections.Abstimmungen.Abstimmung
+  alias RbagElections.Abstimmungen.Abgabe
+  alias RbagElections.Wahlen.Option
+  alias RbagElections.Freigabe.Token
 
   @doc """
   Returns the list of abstimmungen.
@@ -102,14 +105,12 @@ defmodule RbagElections.Abstimmungen do
     Abstimmung.changeset(abstimmung, attrs)
   end
 
-  alias RbagElections.Abstimmungen.Abgabe
-
   @doc """
   Returns the list of Abstimmungen.
 
   ## Examples
 
-      iex> list_abgaben()
+      iex> list_Abstimmungen
       [%Abgabe{}, ...]
 
   """
@@ -294,5 +295,42 @@ defmodule RbagElections.Abstimmungen do
   """
   def change_stimme(%Stimme{} = stimme, attrs \\ %{}) do
     Stimme.changeset(stimme, attrs)
+  end
+
+  def submit!(abstimmung_id, %Option{} = option, %Token{} = token) do
+    # TODO: Make this nicer with https://hexdocs.pm/ecto/Ecto.Multi.html
+    Repo.transaction(fn ->
+      case create_abgabe(%{
+             abstimmung_id: abstimmung_id,
+             token_id: token.id
+           }) do
+        {:ok, _abgabe} ->
+          case create_stimme(%{
+                 abstimmung_id: abstimmung_id,
+                 option_id: option.id
+               }) do
+            {:ok, stimme} ->
+              {:ok, stimme}
+
+            {:error, changeset} ->
+              Repo.rollback(changeset)
+          end
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+  end
+
+  @doc """
+  Aggregates stimmen by option.
+  """
+  def aggregate_stimmen_by_option(abstimmung_id) do
+    Stimme
+    |> join(:inner, [s], o in assoc(s, :option))
+    |> where([s, o], s.abstimmung_id == type(^abstimmung_id, :integer))
+    |> group_by([s, o], o.id)
+    |> select([s, o], %{option: o, count: count(s.id)})
+    |> Repo.all()
   end
 end

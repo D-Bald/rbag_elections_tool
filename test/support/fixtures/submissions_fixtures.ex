@@ -11,7 +11,7 @@ defmodule RbagElections.AbgabenFixtures do
     {:ok, abgabe} =
       attrs
       |> Enum.into(%{})
-      |> RbagElections.abgaben().create_abgabe()
+      |> RbagElections.Abstimmungen.create_abgabe()
 
     abgabe
   end

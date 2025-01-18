@@ -1,4 +1,4 @@
-defmodule RbagElectionsWeb.DurchgangLiveTest do
+defmodule RbagElectionsWeb.abstimmungLiveTest() do
   use RbagElectionsWeb.ConnCase
 
   import Phoenix.LiveViewTest
@@ -8,105 +8,105 @@ defmodule RbagElectionsWeb.DurchgangLiveTest do
   @update_attrs %{status: "some updated status"}
   @invalid_attrs %{status: nil}
 
-  defp create_durchgang(_) do
-    durchgang = durchgang_fixture()
-    %{durchgang: durchgang}
+  defp create_abstimmung(_) do
+    abstimmung = abstimmung_fixture()
+    %{abstimmung: abstimmung}
   end
 
   describe "Index" do
-    setup [:create_durchgang]
+    setup [:create_abstimmung]
 
-    test "lists all durchgaenge", %{conn: conn, durchgang: durchgang} do
+    test "lists all durchgaenge", %{conn: conn, abstimmung: abstimmung} do
       {:ok, _index_live, html} = live(conn, ~p"/durchgaenge")
 
       assert html =~ "Listing Durchgaenge"
-      assert html =~ durchgang.status
+      assert html =~ abstimmung.status
     end
 
-    test "saves new durchgang", %{conn: conn} do
+    test "saves new abstimmung", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/durchgaenge")
 
-      assert index_live |> element("a", "New Durchgang") |> render_click() =~
-               "New Durchgang"
+      assert index_live |> element("a", "New abstimmung") |> render_click() =~
+               "New abstimmung"
 
       assert_patch(index_live, ~p"/durchgaenge/new")
 
       assert index_live
-             |> form("#durchgang-form", durchgang: @invalid_attrs)
+             |> form("#abstimmung-form", abstimmung: @invalid_attrs)
              |> render_change() =~ "can&#39;t be blank"
 
       assert index_live
-             |> form("#durchgang-form", durchgang: @create_attrs)
+             |> form("#abstimmung-form", abstimmung: @create_attrs)
              |> render_submit()
 
       assert_patch(index_live, ~p"/durchgaenge")
 
       html = render(index_live)
-      assert html =~ "Durchgang created successfully"
+      assert html =~ "abstimmung created successfully"
       assert html =~ "some status"
     end
 
-    test "updates durchgang in listing", %{conn: conn, durchgang: durchgang} do
+    test "updates abstimmung in listing", %{conn: conn, abstimmung: abstimmung} do
       {:ok, index_live, _html} = live(conn, ~p"/durchgaenge")
 
-      assert index_live |> element("#durchgaenge-#{durchgang.id} a", "Edit") |> render_click() =~
-               "Edit Durchgang"
+      assert index_live |> element("#durchgaenge-#{abstimmung.id} a", "Edit") |> render_click() =~
+               "Edit abstimmung"
 
-      assert_patch(index_live, ~p"/durchgaenge/#{durchgang}/edit")
+      assert_patch(index_live, ~p"/durchgaenge/#{abstimmung}/edit")
 
       assert index_live
-             |> form("#durchgang-form", durchgang: @invalid_attrs)
+             |> form("#abstimmung-form", abstimmung: @invalid_attrs)
              |> render_change() =~ "can&#39;t be blank"
 
       assert index_live
-             |> form("#durchgang-form", durchgang: @update_attrs)
+             |> form("#abstimmung-form", abstimmung: @update_attrs)
              |> render_submit()
 
       assert_patch(index_live, ~p"/durchgaenge")
 
       html = render(index_live)
-      assert html =~ "Durchgang updated successfully"
+      assert html =~ "abstimmung updated successfully"
       assert html =~ "some updated status"
     end
 
-    test "deletes durchgang in listing", %{conn: conn, durchgang: durchgang} do
+    test "deletes abstimmung in listing", %{conn: conn, abstimmung: abstimmung} do
       {:ok, index_live, _html} = live(conn, ~p"/durchgaenge")
 
-      assert index_live |> element("#durchgaenge-#{durchgang.id} a", "Delete") |> render_click()
-      refute has_element?(index_live, "#durchgaenge-#{durchgang.id}")
+      assert index_live |> element("#durchgaenge-#{abstimmung.id} a", "Delete") |> render_click()
+      refute has_element?(index_live, "#durchgaenge-#{abstimmung.id}")
     end
   end
 
   describe "Show" do
-    setup [:create_durchgang]
+    setup [:create_abstimmung]
 
-    test "displays durchgang", %{conn: conn, durchgang: durchgang} do
-      {:ok, _show_live, html} = live(conn, ~p"/durchgaenge/#{durchgang}")
+    test "displays abstimmung", %{conn: conn, abstimmung: abstimmung} do
+      {:ok, _show_live, html} = live(conn, ~p"/durchgaenge/#{abstimmung}")
 
-      assert html =~ "Show Durchgang"
-      assert html =~ durchgang.status
+      assert html =~ "Show abstimmung"
+      assert html =~ abstimmung.status
     end
 
-    test "updates durchgang within modal", %{conn: conn, durchgang: durchgang} do
-      {:ok, show_live, _html} = live(conn, ~p"/durchgaenge/#{durchgang}")
+    test "updates abstimmung within modal", %{conn: conn, abstimmung: abstimmung} do
+      {:ok, show_live, _html} = live(conn, ~p"/durchgaenge/#{abstimmung}")
 
       assert show_live |> element("a", "Edit") |> render_click() =~
-               "Edit Durchgang"
+               "Edit abstimmung"
 
-      assert_patch(show_live, ~p"/durchgaenge/#{durchgang}/show/edit")
+      assert_patch(show_live, ~p"/durchgaenge/#{abstimmung}/show/edit")
 
       assert show_live
-             |> form("#durchgang-form", durchgang: @invalid_attrs)
+             |> form("#abstimmung-form", abstimmung: @invalid_attrs)
              |> render_change() =~ "can&#39;t be blank"
 
       assert show_live
-             |> form("#durchgang-form", durchgang: @update_attrs)
+             |> form("#abstimmung-form", abstimmung: @update_attrs)
              |> render_submit()
 
-      assert_patch(show_live, ~p"/durchgaenge/#{durchgang}")
+      assert_patch(show_live, ~p"/durchgaenge/#{abstimmung}")
 
       html = render(show_live)
-      assert html =~ "Durchgang updated successfully"
+      assert html =~ "abstimmung updated successfully"
       assert html =~ "some updated status"
     end
   end

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="RbagElections" suffix=" · Phoenix Framework">
+    <.live_title default="Wahlen" suffix=" · RBAG">
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
@@ -16,14 +16,6 @@
       <%= if @current_admin do %>
         <li class="text-[0.8125rem] leading-6 text-zinc-900">
           {@current_admin.email}
-        </li>
-        <li>
-          <.link
-            href={~p"/admins/settings"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Settings
-          </.link>
         </li>
         <li>
           <.link

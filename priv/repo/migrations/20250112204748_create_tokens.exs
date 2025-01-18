@@ -3,13 +3,13 @@ defmodule RbagElections.Repo.Migrations.CreateTokens do
 
   def change do
     create table(:tokens) do
-      add :uuid, :uuid
-      add :besitzer, :string
+      add :value, :binary, null: false
+      add :besitzer, :string, null: false
       add :freigegeben, :boolean, default: false, null: false
 
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:tokens, [:uuid])
+    create unique_index(:tokens, [:value])
   end
 end

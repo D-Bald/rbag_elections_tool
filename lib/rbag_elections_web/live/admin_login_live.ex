@@ -21,9 +21,6 @@ defmodule RbagElectionsWeb.AdminLoginLive do
 
         <:actions>
           <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-          <.link href={~p"/admins/reset_password"} class="text-sm font-semibold">
-            Forgot your password?
-          </.link>
         </:actions>
         <:actions>
           <.button phx-disable-with="Logging in..." class="w-full">

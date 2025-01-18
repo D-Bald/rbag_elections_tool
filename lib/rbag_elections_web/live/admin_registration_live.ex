@@ -56,12 +56,6 @@ defmodule RbagElectionsWeb.AdminRegistrationLive do
   def handle_event("save", %{"admin" => admin_params}, socket) do
     case Management.register_admin(admin_params) do
       {:ok, admin} ->
-        {:ok, _} =
-          Management.deliver_admin_confirmation_instructions(
-            admin,
-            &url(~p"/admins/confirm/#{&1}")
-          )
-
         changeset = Management.change_admin_registration(admin)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 

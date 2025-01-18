@@ -7,6 +7,7 @@ defmodule RbagElections.Wahlen.Position do
 
     belongs_to :wahl, RbagElections.Wahlen.Wahl
     has_many :optionen, RbagElections.Wahlen.Option
+    has_many :abstimmungen, RbagElections.Abstimmungen.Abstimmung
 
     timestamps(type: :utc_datetime)
   end

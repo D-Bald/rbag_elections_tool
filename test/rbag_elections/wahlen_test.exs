@@ -168,56 +168,58 @@ defmodule RbagElections.WahlenTest do
   end
 
   describe "durchgaenge" do
-    alias RbagElections.Wahlen.Durchgang
+    alias RbagElections.Wahlen.abstimmung()
 
     import RbagElections.WahlenFixtures
 
     @invalid_attrs %{status: nil}
 
     test "list_durchgaenge/0 returns all durchgaenge" do
-      durchgang = durchgang_fixture()
-      assert Wahlen.list_durchgaenge() == [durchgang]
+      abstimmung = abstimmung_fixture()
+      assert Wahlen.list_durchgaenge() == [abstimmung]
     end
 
-    test "get_durchgang!/1 returns the durchgang with given id" do
-      durchgang = durchgang_fixture()
-      assert Wahlen.get_durchgang!(durchgang.id) == durchgang
+    test "get_abstimmung!/1 returns the abstimmung with given id" do
+      abstimmung = abstimmung_fixture()
+      assert Wahlen.get_abstimmung!(abstimmung.id) == abstimmung
     end
 
-    test "create_durchgang/1 with valid data creates a durchgang" do
+    test "create_abstimmung/1 with valid data creates a abstimmung" do
       valid_attrs = %{status: "some status"}
 
-      assert {:ok, %Durchgang{} = durchgang} = Wahlen.create_durchgang(valid_attrs)
-      assert durchgang.status == "some status"
+      assert {:ok, %abstimmung{} = abstimmung} = Wahlen.create_abstimmung(valid_attrs)
+      assert abstimmung.status == "some status"
     end
 
-    test "create_durchgang/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Wahlen.create_durchgang(@invalid_attrs)
+    test "create_abstimmung/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Wahlen.create_abstimmung(@invalid_attrs)
     end
 
-    test "update_durchgang/2 with valid data updates the durchgang" do
-      durchgang = durchgang_fixture()
+    test "update_abstimmung/2 with valid data updates the abstimmung" do
+      abstimmung = abstimmung_fixture()
       update_attrs = %{status: "some updated status"}
 
-      assert {:ok, %Durchgang{} = durchgang} = Wahlen.update_durchgang(durchgang, update_attrs)
-      assert durchgang.status == "some updated status"
+      assert {:ok, %abstimmung{} = abstimmung} =
+               Wahlen.update_abstimmung(abstimmung, update_attrs)
+
+      assert abstimmung.status == "some updated status"
     end
 
-    test "update_durchgang/2 with invalid data returns error changeset" do
-      durchgang = durchgang_fixture()
-      assert {:error, %Ecto.Changeset{}} = Wahlen.update_durchgang(durchgang, @invalid_attrs)
-      assert durchgang == Wahlen.get_durchgang!(durchgang.id)
+    test "update_abstimmung/2 with invalid data returns error changeset" do
+      abstimmung = abstimmung_fixture()
+      assert {:error, %Ecto.Changeset{}} = Wahlen.update_abstimmung(abstimmung, @invalid_attrs)
+      assert abstimmung == Wahlen.get_abstimmung!(abstimmung.id)
     end
 
-    test "delete_durchgang/1 deletes the durchgang" do
-      durchgang = durchgang_fixture()
-      assert {:ok, %Durchgang{}} = Wahlen.delete_durchgang(durchgang)
-      assert_raise Ecto.NoResultsError, fn -> Wahlen.get_durchgang!(durchgang.id) end
+    test "delete_abstimmung/1 deletes the abstimmung" do
+      abstimmung = abstimmung_fixture()
+      assert {:ok, %abstimmung{}} = Wahlen.delete_abstimmung(abstimmung)
+      assert_raise Ecto.NoResultsError, fn -> Wahlen.get_abstimmung!(abstimmung.id) end
     end
 
-    test "change_durchgang/1 returns a durchgang changeset" do
-      durchgang = durchgang_fixture()
-      assert %Ecto.Changeset{} = Wahlen.change_durchgang(durchgang)
+    test "change_abstimmung/1 returns a abstimmung changeset" do
+      abstimmung = abstimmung_fixture()
+      assert %Ecto.Changeset{} = Wahlen.change_abstimmung(abstimmung)
     end
   end
 end

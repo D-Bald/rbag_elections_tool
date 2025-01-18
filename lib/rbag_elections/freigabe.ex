@@ -21,6 +21,18 @@ defmodule RbagElections.Freigabe do
     Repo.all(Token)
   end
 
+  def list_pending_tokens() do
+    Token
+    |> where(freigegeben: false)
+    |> Repo.all()
+  end
+
+  def list_confirmed_tokens() do
+    Token
+    |> where(freigegeben: true)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single token.
 
@@ -56,20 +68,38 @@ defmodule RbagElections.Freigabe do
   end
 
   @doc """
-  Updates a token.
+  Confirms a token.
 
   ## Examples
 
-      iex> update_token(token, %{field: new_value})
+      iex> confirm_token(token)
       {:ok, %Token{}}
 
-      iex> update_token(token, %{field: bad_value})
+      iex> confirm_token(bad_token)
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_token(%Token{} = token, attrs) do
+  def confirm_token(%Token{} = token) do
     token
-    |> Token.changeset(attrs)
+    |> Token.changeset(%{freigegeben: true})
+    |> Repo.update()
+  end
+
+  @doc """
+  Revokes a token.
+
+  ## Examples
+
+      iex> revoke_token(token)
+      {:ok, %Token{}}
+
+      iex> revoke_token(bad_token})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def revoke_token(%Token{} = token) do
+    token
+    |> Token.changeset(%{freigegeben: false})
     |> Repo.update()
   end
 
@@ -90,6 +120,24 @@ defmodule RbagElections.Freigabe do
   end
 
   @doc """
+  Deletes a token.
+
+  ## Examples
+
+      iex> delete_token_by_value(value)
+      {:ok, %Token{}}
+
+      iex> delete_token_by_value(value)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_token_by_value(value) do
+    Token
+    |> where(value: ^value)
+    |> Repo.delete_all()
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for tracking token changes.
 
   ## Examples
@@ -100,5 +148,25 @@ defmodule RbagElections.Freigabe do
   """
   def change_token(%Token{} = token, attrs \\ %{}) do
     Token.changeset(token, attrs)
+  end
+
+  ## Session
+
+  @doc """
+  Generates a session token.
+  """
+  def generate_session_token(besitzer) do
+    {value, token} = Token.build_session_token(besitzer)
+    Repo.insert!(token)
+    value
+  end
+
+  @doc """
+  Gets the token with the given signed value.
+  """
+  def get_token_by_session_token_value(value) do
+    Token
+    |> where(value: ^value)
+    |> Repo.one()
   end
 end
