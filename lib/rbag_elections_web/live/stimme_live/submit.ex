@@ -51,7 +51,6 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
         option.id == String.to_integer(option_id)
       end)
 
-    IO.inspect(option)
     Abstimmungen.submit(wahl_slug, option, token)
 
     {:noreply,

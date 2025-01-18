@@ -27,6 +27,9 @@ RUN mix local.hex --force
 RUN mix archive.install --force hex phx_new ${PHOENIX_VERSION}
 RUN mix local.rebar --force
 
+# Install flyctl
+RUN curl -L https://fly.io/install.sh | sh
+
 # App Directory
 ENV APP_HOME /workspace
 RUN mkdir -p $APP_HOME

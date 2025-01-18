@@ -13,5 +13,6 @@
                 "mhutchie.git-graph"
             ]
         }
-    }
+    },
+    "postCreateCommand": "export PATH=$HOME/.fly/bin:$PATH"
 }

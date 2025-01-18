@@ -172,7 +172,6 @@ defmodule RbagElections.Wahlen do
 
     %Position{wahl_id: wahl.id}
     |> Position.changeset(attrs)
-    |> IO.inspect()
     |> Repo.insert()
   end
 
