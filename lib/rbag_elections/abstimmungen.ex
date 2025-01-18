@@ -8,7 +8,8 @@ defmodule RbagElections.Abstimmungen do
 
   alias RbagElections.Abstimmungen.Abstimmung
   alias RbagElections.Abstimmungen.Abgabe
-  alias RbagElections.Wahlen.Option
+  alias RbagElections.Wahlen
+  alias RbagElections.Wahlen.{Option, Position}
   alias RbagElections.Freigabe.Token
 
   @doc """
@@ -22,6 +23,13 @@ defmodule RbagElections.Abstimmungen do
   """
   def list_abstimmungen do
     Repo.all(Abstimmung)
+  end
+
+  def list_abstimmungen_for_position(position_id) do
+    Abstimmung
+    |> where(position_id: ^position_id)
+    |> preload(:position)
+    |> Repo.all()
   end
 
   @doc """
@@ -41,7 +49,30 @@ defmodule RbagElections.Abstimmungen do
   def get_abstimmung!(id), do: Repo.get!(Abstimmung, id)
 
   @doc """
-  Creates a abstimmung.
+  Gets a single abstimmung.
+
+  Raises `Ecto.NoResultsError` if the Abstimmung does not exist.
+
+  ## Examples
+
+      iex> get_abstimmung_by_wahl_slug(some-slug)
+      %Abstimmung{}
+
+      iex> get_abstimmung_by_wahl_slug(NoSlug!)
+      nil
+
+  """
+  def get_abstimmung_by_wahl_slug(wahl_slug) do
+    wahl = Wahlen.get_wahl_by_slug!(wahl_slug)
+
+    case Repo.get_by(Abstimmung, wahl_id: wahl.id) do
+      nil -> {:error, "No Abstimmung found for Wahl with slug #{wahl_slug}"}
+      abstimmung -> {:ok, abstimmung}
+    end
+  end
+
+  @doc """
+  Creates a abstimmung. And therefore starts it.
 
   ## Examples
 
@@ -52,10 +83,32 @@ defmodule RbagElections.Abstimmungen do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_abstimmung(attrs \\ %{}) do
+  defp create_abstimmung(attrs \\ %{}) do
     %Abstimmung{}
     |> Abstimmung.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def start_abstimmung(wahl_id, position_id) do
+    create_abstimmung(%{wahl_id: wahl_id, position_id: position_id})
+  end
+
+  @doc """
+  Removes the link to the wahl which effectively ends the abstimmung.
+
+  ## Examples
+
+      iex> end_abstimmung(%{field: value})
+      {:ok, %Abstimmung{}}
+
+      iex> end_abstimmung(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def end_abstimmung(abstimmung_id) do
+    Repo.get!(Abstimmung, abstimmung_id)
+    |> Abstimmung.changeset(%{wahl_id: nil})
+    |> Repo.update()
   end
 
   @doc """
@@ -120,6 +173,14 @@ defmodule RbagElections.Abstimmungen do
     |> Repo.all()
   end
 
+  def list_abgaben_for_abstimmung(abstimmung_id) do
+    Abgabe
+    |> where(abstimmung_id: ^abstimmung_id)
+    |> preload(token: [], abstimmung: [:position])
+    |> Repo.all()
+  end
+
+  @spec get_abgabe!(any()) :: any()
   @doc """
   Gets a single abgabe.
 
@@ -297,16 +358,23 @@ defmodule RbagElections.Abstimmungen do
     Stimme.changeset(stimme, attrs)
   end
 
-  def submit!(abstimmung_id, %Option{} = option, %Token{} = token) do
+  def submit(wahl_slug, %Option{} = option, %Token{} = token) when is_binary(wahl_slug) do
+    case get_abstimmung_by_wahl_slug(wahl_slug) do
+      {:error, reason} -> {:error, reason}
+      {:ok, abstimmung} -> submit(abstimmung, option, token)
+    end
+  end
+
+  def submit(%Abstimmung{} = abstimmung, %Option{} = option, %Token{} = token) do
     # TODO: Make this nicer with https://hexdocs.pm/ecto/Ecto.Multi.html
     Repo.transaction(fn ->
       case create_abgabe(%{
-             abstimmung_id: abstimmung_id,
+             abstimmung_id: abstimmung.id,
              token_id: token.id
            }) do
         {:ok, _abgabe} ->
           case create_stimme(%{
-                 abstimmung_id: abstimmung_id,
+                 abstimmung_id: abstimmung.id,
                  option_id: option.id
                }) do
             {:ok, stimme} ->
@@ -327,10 +395,20 @@ defmodule RbagElections.Abstimmungen do
   """
   def aggregate_stimmen_by_option(abstimmung_id) do
     Stimme
+    |> where([s], s.abstimmung_id == ^abstimmung_id)
     |> join(:inner, [s], o in assoc(s, :option))
-    |> where([s, o], s.abstimmung_id == type(^abstimmung_id, :integer))
-    |> group_by([s, o], o.id)
+    |> group_by([s, o], [o.id, o.wert, o.position_id, o.inserted_at, o.updated_at])
     |> select([s, o], %{option: o, count: count(s.id)})
     |> Repo.all()
+    |> IO.inspect()
+  end
+
+  def get_position_with_options(abstimmung_id) do
+    abstimmung = get_abstimmung!(abstimmung_id)
+
+    Position
+    |> where([p], p.id == ^abstimmung.position_id)
+    |> preload(:optionen)
+    |> Repo.one()
   end
 end

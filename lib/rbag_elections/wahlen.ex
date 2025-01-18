@@ -4,8 +4,8 @@ defmodule RbagElections.Wahlen do
   """
 
   import Ecto.Query, warn: false
-  alias RbagElections.Repo
 
+  alias RbagElections.Repo
   alias RbagElections.Wahlen.Wahl
 
   @doc """
@@ -52,9 +52,7 @@ defmodule RbagElections.Wahlen do
 
   """
   def get_wahl_by_slug!(slug) do
-    Wahl
-    |> where(slug: ^slug)
-    |> Repo.one!()
+    Repo.get_by!(Wahl, slug: slug)
   end
 
   @doc """
@@ -230,15 +228,21 @@ defmodule RbagElections.Wahlen do
 
   ## Examples
 
-      iex> list_Abstimmungen
-      [%Abgabe{}, ...]
+      iex> get_position_with_options(wahl_slug)
+      %Position{optionen: [%Option{}, ...]
 
+      iex> get_position_with_options(noSlug!)
+      nil
   """
-  def get_position_with_options(abstimmung_id) do
-    Abgabe
-    |> where(abstimmung_id: ^abstimmung_id)
-    |> preload(optionen: [:wert])
-    |> Repo.one()
+  def get_position_with_options(wahl_slug) do
+    wahl =
+      Wahl
+      |> where(slug: ^wahl_slug)
+      |> preload(positionen: :optionen, aktuelle_abstimmung: :position)
+      |> Repo.one!()
+
+    position_id = wahl.aktuelle_abstimmung.position_id
+    Enum.find(wahl.positionen, fn position -> position.id == position_id end)
   end
 
   alias RbagElections.Wahlen.Option

@@ -3,6 +3,7 @@ defmodule RbagElectionsWeb.PositionController do
 
   alias RbagElections.Wahlen
   alias RbagElections.Wahlen.Position
+  alias RbagElections.Abstimmungen
 
   def index(conn, %{"wahl_slug" => wahl_slug}) do
     positionen = Wahlen.list_positionen(wahl_slug)
@@ -58,5 +59,61 @@ defmodule RbagElectionsWeb.PositionController do
     conn
     |> put_flash(:info, "Position deleted successfully.")
     |> redirect(to: ~p"/wahlen/#{wahl_slug}/positionen")
+  end
+
+  def manage_abstimmung(conn, %{"wahl_slug" => wahl_slug}) do
+    case Abstimmungen.get_abstimmung_by_wahl_slug(wahl_slug) do
+      {:ok, abstimmung} ->
+        abgaben = Abstimmungen.list_abgaben_for_abstimmung(abstimmung.id)
+
+        render(conn, :manage_abstimmung,
+          wahl_slug: wahl_slug,
+          abstimmung: abstimmung,
+          abgaben: abgaben
+        )
+
+      {:error, _reason} ->
+        positionen = Wahlen.list_positionen(wahl_slug)
+        render(conn, :start_abstimmung, wahl_slug: wahl_slug, positionen: positionen)
+    end
+  end
+
+  def start_abstimmung(conn, %{"wahl_slug" => wahl_slug, "position_id" => position_id}) do
+    wahl = Wahlen.get_wahl_by_slug!(wahl_slug)
+
+    case Abstimmungen.start_abstimmung(wahl.id, position_id) do
+      {:ok, _abstimmung} ->
+        conn
+        |> put_flash(:info, "Abstimmung started successfully.")
+        |> redirect(to: ~p"/wahlen/#{wahl_slug}/manage_abstimmung")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        positionen = Wahlen.list_positionen(wahl_slug)
+
+        render(conn, :start_abstimmung,
+          wahl_slug: wahl_slug,
+          positionen: positionen,
+          changeset: changeset
+        )
+    end
+  end
+
+  def end_abstimmung(conn, %{"wahl_slug" => wahl_slug, "abstimmung_id" => abstimmung_id}) do
+    case Abstimmungen.end_abstimmung(abstimmung_id) do
+      {:ok, _abstimmung} ->
+        conn
+        |> put_flash(:info, "Abstimmung ended successfully.")
+        |> redirect(to: ~p"/wahlen/#{wahl_slug}/manage_abstimmung")
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Failed to end Abstimmung.")
+        |> redirect(to: ~p"/wahlen/#{wahl_slug}/manage_abstimmung")
+    end
+  end
+
+  def list_abstimmungen(conn, %{"wahl_slug" => wahl_slug, "position_id" => position_id}) do
+    abstimmungen = Abstimmungen.list_abstimmungen_for_position(position_id)
+    render(conn, :list_abstimmungen, wahl_slug: wahl_slug, abstimmungen: abstimmungen)
   end
 end

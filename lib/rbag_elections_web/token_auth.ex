@@ -222,7 +222,6 @@ defmodule RbagElectionsWeb.TokenAuth do
     token = conn.assigns[:current_token]
 
     if token do
-      IO.inspect(token, label: "happy path")
       conn
     else
       conn

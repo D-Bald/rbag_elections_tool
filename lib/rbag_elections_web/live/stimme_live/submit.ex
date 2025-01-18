@@ -10,15 +10,15 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
     ~H"""
     <div>
       <.header>
-        Abstimmen für Position {@position.nane}
+        Abstimmen für Position {@position.name}
       </.header>
 
       <.simple_form for={@form} id="stimme-form" phx-submit="save">
         <.input
-          field={@form[:position_id]}
+          field={@form[:option_id]}
           type="select"
-          label="Position"
-          options={@position.optionen}
+          label="Option"
+          options={Enum.map(@position.optionen, &{&1.wert, &1.id})}
           required
         />
 
@@ -31,21 +31,28 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
   end
 
   @impl true
-  def mount(%{"abstimmung_id" => abstimmung_id}, _session, socket) do
-    position = Wahlen.get_position_with_options(abstimmung_id)
+  def mount(%{"wahl_slug" => wahl_slug}, _session, socket) do
+    position = Wahlen.get_position_with_options(wahl_slug)
 
     {:ok,
      socket
-     |> assign(:abstimmung_id, String.to_integer(abstimmung_id))
+     |> assign(:wahl_slug, wahl_slug)
      |> assign(:position, position)
-     |> assign(:stimme, %Stimme{})}
+     |> assign(:form, to_form(Abstimmungen.change_stimme(%Stimme{})))}
   end
 
   @impl true
-  def handle_event("save", %{"stimme" => %{"option" => option}}, socket) do
+  def handle_event("save", %{"stimme" => %{"option_id" => option_id}}, socket) do
     token = socket.assigns.current_token
-    abstimmung_id = socket.assigns.abstimmung_id
-    Abstimmungen.submit!(abstimmung_id, option, token)
+    wahl_slug = socket.assigns.wahl_slug
+
+    option =
+      Enum.find(socket.assigns.position.optionen, fn option ->
+        option.id == String.to_integer(option_id)
+      end)
+
+    IO.inspect(option)
+    Abstimmungen.submit(wahl_slug, option, token)
 
     {:noreply,
      socket

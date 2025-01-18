@@ -17,6 +17,11 @@
     <.link navigate={~p"/wahlen/#{@wahl_slug}/positionen/#{position}/optionen"}>Optionen</.link>
   </:action>
   <:action :let={position}>
+    <.link navigate={~p"/wahlen/#{@wahl_slug}/positionen/#{position}/abstimmungen"}>
+      Abstimmungen
+    </.link>
+  </:action>
+  <:action :let={position}>
     <div class="sr-only">
       <.link navigate={~p"/wahlen/#{@wahl_slug}/positionen/#{position}"}>Show</.link>
     </div>

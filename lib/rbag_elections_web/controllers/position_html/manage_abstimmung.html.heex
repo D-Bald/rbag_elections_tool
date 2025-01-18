@@ -1,0 +1,15 @@
+<.header>
+  Manage Abstimmung
+</.header>
+
+<h2 class="text-lg">Abgaben für</h2>
+<.table id="abgaben" rows={@abgaben}>
+  <:col :let={abgabe} label="Token">{abgabe.token.besitzer}</:col>
+</.table>
+
+<.link
+  href={~p"/wahlen/#{@wahl_slug}/end_abstimmung?abstimmung_id=#{@abstimmung.id}"}
+  method="post"
+>
+  <.button>End Abstimmung</.button>
+</.link>

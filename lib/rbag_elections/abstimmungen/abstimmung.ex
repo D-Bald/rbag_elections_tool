@@ -13,8 +13,9 @@ defmodule RbagElections.Abstimmungen.Abstimmung do
   @doc false
   def changeset(abstimmung, attrs) do
     abstimmung
-    |> cast(attrs, [:wahl_id])
-    |> validate_required([:wahl_id])
+    |> cast(attrs, [:wahl_id, :position_id])
+    |> validate_required([:position_id])
     |> foreign_key_constraint(:wahl_id)
+    |> foreign_key_constraint(:position_id)
   end
 end

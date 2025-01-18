@@ -1,0 +1,12 @@
+<.header>
+  List of Abstimmungen
+</.header>
+
+<h2 class="text-lg">Abstimmungen</h2>
+<.table id="abstimmungen" rows={@abstimmungen}>
+  <:col :let={abstimmung} label="Position">{abstimmung.position.name}</:col>
+  <:col :let={abstimmung} label="Started At">{abstimmung.inserted_at}</:col>
+  <:action :let={abstimmung}>
+    <.link navigate={~p"/wahlen/#{abstimmung.id}/ergebnisse"}>View Results</.link>
+  </:action>
+</.table>

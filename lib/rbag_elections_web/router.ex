@@ -51,16 +51,30 @@ defmodule RbagElectionsWeb.Router do
     delete "/tokens/log_out", TokenSessionController, :delete
   end
 
-  ## Routes with confirmed token
+  ## Admin routes
 
   scope "/", RbagElectionsWeb do
-    pipe_through [:browser, :require_confirmed_token]
+    pipe_through [:browser, :require_authenticated_admin]
 
-    live_session :require_confirmed_token,
-      on_mount: [{RbagElectionsWeb.TokenAuth, :ensure_authenticated}] do
-      live "/stimmen/:abstimmung_id/abgeben", StimmeLive.Submit, :new
+    resources "/wahlen", WahlController, param: "slug" do
+      resources "/positionen", PositionController do
+        resources "/optionen", OptionController
+      end
+
+      get "/manage_abstimmung", PositionController, :manage_abstimmung
+      post "/start_abstimmung", PositionController, :start_abstimmung
+      post "/end_abstimmung", PositionController, :end_abstimmung
+      get "/positionen/:position_id/abstimmungen", PositionController, :list_abstimmungen
+    end
+
+    live_session :require_authenticated_admin,
+      on_mount: [{RbagElectionsWeb.AdminAuth, :ensure_authenticated}] do
+      live "/tokens", TokenLive.Index, :index
+      live "/wahlen/:abstimmung_id/ergebnisse", StimmeLive.Aggregate, :index
     end
   end
+
+  ## Routes with confirmed token
 
   scope "/", RbagElectionsWeb do
     pipe_through [:browser, :require_authenticated_token]
@@ -71,22 +85,12 @@ defmodule RbagElectionsWeb.Router do
     end
   end
 
-  ## Admin routes
-
   scope "/", RbagElectionsWeb do
-    pipe_through [:browser, :require_authenticated_admin]
+    pipe_through [:browser, :require_confirmed_token]
 
-    resources "/wahlen", WahlController, param: "slug" do
-      resources "/positionen", PositionController do
-        resources "/optionen", OptionController
-      end
-    end
-
-    live_session :require_authenticated_admin,
-      on_mount: [{RbagElectionsWeb.AdminAuth, :ensure_authenticated}] do
-      live "/stimmen/:abstimmung_id", StimmeLive.Aggregate, :index
-
-      live "/tokens", TokenLive.Index, :index
+    live_session :require_confirmed_token,
+      on_mount: [{RbagElectionsWeb.TokenAuth, :ensure_authenticated}] do
+      live "/geheime-wahl/:wahl_slug", StimmeLive.Submit, :new
     end
   end
 
@@ -96,13 +100,13 @@ defmodule RbagElectionsWeb.Router do
 
     get "/", PageController, :home
 
-    live "/:wahl_slug/abstimmungen", AbstimmungLive.Index, :index
-    live "/:wahl_slug/abstimmungen/new", AbstimmungLive.Index, :new
-    live "/:wahl_slug/abstimmungen/:id/edit", AbstimmungLive.Index, :edit
-    live "/:wahl_slug/abstimmungen/:id", AbstimmungLive.Show, :show
-    live "/:wahl_slug/abstimmungen/:id/show/edit", AbstimmungLive.Show, :edit
+    live "/wahlen/:wahl_slug/abstimmungen", AbstimmungLive.Index, :index
+    live "/wahlen/:wahl_slug/abstimmungen/new", AbstimmungLive.Index, :new
+    live "/wahlen/:wahl_slug/abstimmungen/:id/edit", AbstimmungLive.Index, :edit
+    live "/wahlen/:wahl_slug/abstimmungen/:id", AbstimmungLive.Show, :show
+    live "/wahlen/:wahl_slug/abstimmungen/:id/show/edit", AbstimmungLive.Show, :edit
 
-    live "/:wahl_slug/abstimmungen/:abstimmung_id/abgaben", AbgabeLive.Index, :index
+    live "/wahlen/:wahl_slug/abstimmungen/:abstimmung_id/abgaben", AbgabeLive.Index, :index
   end
 
   # Other scopes may use custom stacks.
