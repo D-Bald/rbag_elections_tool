@@ -6,4 +6,8 @@ defmodule RbagElectionsWeb.PageController do
     # so skip the default app layout.
     render(conn, :home, layout: false)
   end
+
+  def redirect_to_login(conn, _params) do
+    redirect(conn, to: "/login")
+  end
 end

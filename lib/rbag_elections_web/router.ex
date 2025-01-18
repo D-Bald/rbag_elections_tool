@@ -37,7 +37,7 @@ defmodule RbagElectionsWeb.Router do
 
     live_session :redirect_if_admin_is_authenticated,
       on_mount: [{RbagElectionsWeb.AdminAuth, :redirect_if_admin_is_authenticated}] do
-      live "/admins/register", AdminRegistrationLive, :new
+      # live "/admins/register", AdminRegistrationLive, :new
       live "/admins/log_in", AdminLoginLive, :new
     end
 
@@ -96,17 +96,17 @@ defmodule RbagElectionsWeb.Router do
 
   # Unused routes
   scope "/", RbagElectionsWeb do
-    pipe_through [:browser, :require_authenticated_admin]
+    pipe_through [:browser, :require_confirmed_token]
 
-    get "/", PageController, :home
+    get "/", PageController, :redirect_to_login
 
-    live "/wahlen/:wahl_slug/abstimmungen", AbstimmungLive.Index, :index
-    live "/wahlen/:wahl_slug/abstimmungen/new", AbstimmungLive.Index, :new
-    live "/wahlen/:wahl_slug/abstimmungen/:id/edit", AbstimmungLive.Index, :edit
-    live "/wahlen/:wahl_slug/abstimmungen/:id", AbstimmungLive.Show, :show
-    live "/wahlen/:wahl_slug/abstimmungen/:id/show/edit", AbstimmungLive.Show, :edit
+    # live "/wahlen/:wahl_slug/abstimmungen", AbstimmungLive.Index, :index
+    # live "/wahlen/:wahl_slug/abstimmungen/new", AbstimmungLive.Index, :new
+    # live "/wahlen/:wahl_slug/abstimmungen/:id/edit", AbstimmungLive.Index, :edit
+    # live "/wahlen/:wahl_slug/abstimmungen/:id", AbstimmungLive.Show, :show
+    # live "/wahlen/:wahl_slug/abstimmungen/:id/show/edit", AbstimmungLive.Show, :edit
 
-    live "/wahlen/:wahl_slug/abstimmungen/:abstimmung_id/abgaben", AbgabeLive.Index, :index
+    # live "/wahlen/:wahl_slug/abstimmungen/:abstimmung_id/abgaben", AbgabeLive.Index, :index
   end
 
   # Other scopes may use custom stacks.
