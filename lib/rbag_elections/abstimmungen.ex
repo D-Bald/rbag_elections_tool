@@ -400,7 +400,6 @@ defmodule RbagElections.Abstimmungen do
     |> group_by([s, o], [o.id, o.wert, o.position_id, o.inserted_at, o.updated_at])
     |> select([s, o], %{option: o, count: count(s.id)})
     |> Repo.all()
-    |> IO.inspect()
   end
 
   def get_position_with_options(abstimmung_id) do

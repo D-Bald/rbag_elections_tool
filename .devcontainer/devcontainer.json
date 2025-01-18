@@ -14,5 +14,5 @@
             ]
         }
     },
-    "postCreateCommand": "export PATH=$HOME/.fly/bin:$PATH"
+    "postCreateCommand": "echo 'export FLYCTL_INSTALL=\"/root/.fly\"' >> ~/.bashrc && echo 'export PATH=\"$FLYCTL_INSTALL/bin:$PATH\"' >> ~/.bashrc && source ~/.bashrc"
 }
