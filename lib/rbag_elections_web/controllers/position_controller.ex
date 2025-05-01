@@ -65,8 +65,12 @@ defmodule RbagElectionsWeb.PositionController do
   def manage_abstimmung(conn, %{"wahl_slug" => wahl_slug}) do
     # TODO: Load all tokens for this Wahl and mark those without a related Abstimmung with red background
     # TODO In the new LiveView: Subscribe to "token:stimme_gezähl" and update background-colors for tokens with submitted Abgaben in realtime
-    case Abstimmungen.get_abstimmung_by_wahl_slug(wahl_slug) do
-      {:ok, abstimmung} ->
+    case Wahlen.get_aktuelle_abstimmung(wahl_slug) do
+      nil ->
+        positionen = Wahlen.list_positionen(wahl_slug)
+        render(conn, :start_abstimmung, wahl_slug: wahl_slug, positionen: positionen)
+
+      abstimmung ->
         abgaben = Abstimmungen.list_abgaben_for_abstimmung(abstimmung.id)
 
         render(conn, :manage_abstimmung,
@@ -74,15 +78,11 @@ defmodule RbagElectionsWeb.PositionController do
           abstimmung: abstimmung,
           abgaben: abgaben
         )
-
-      {:error, _reason} ->
-        positionen = Wahlen.list_positionen(wahl_slug)
-        render(conn, :start_abstimmung, wahl_slug: wahl_slug, positionen: positionen)
     end
   end
 
   def start_abstimmung(conn, %{"wahl_slug" => wahl_slug, "position_id" => position_id}) do
-    wahl = Wahlen.get_wahl_by_slug!(wahl_slug)
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(wahl_slug)
 
     case Abstimmungen.start_abstimmung(wahl.id, position_id) do
       {:ok, _abstimmung} ->

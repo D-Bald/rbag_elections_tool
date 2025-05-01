@@ -7,6 +7,7 @@ defmodule RbagElections.Wahlen do
 
   alias RbagElections.Repo
   alias RbagElections.Wahlen.Wahl
+  alias RbagElections.Abstimmungen
 
   @doc """
   Returns the list of wahlen.
@@ -44,15 +45,30 @@ defmodule RbagElections.Wahlen do
 
   ## Examples
 
-      iex> get_wahl_by_slug!("some-slug")
-      %Wahl{}
+      iex> get_wahl_by_slug("some-slug")
+      {:ok, %Wahl{}}
 
-      iex> get_wahl_by_slug!("non-existent-slug")
-      ** (Ecto.NoResultsError)
+      iex> get_wahl_by_slug("non-existent-slug")
+      {:error, "Wahl with slug non-existent-slug not found"}
 
   """
-  def get_wahl_by_slug!(slug) do
-    Repo.get_by!(Wahl, slug: slug)
+  def get_wahl_by_slug(slug) do
+    case Repo.get_by(Wahl, slug: slug) do
+      nil -> {:error, "Wahl with slug #{slug} not found"}
+      wahl -> {:ok, wahl}
+    end
+  end
+
+  def get_aktuelle_abstimmung(wahl_slug) do
+    with {:ok, wahl} <- get_wahl_by_slug(wahl_slug) do
+      Abstimmungen.get_aktuelle_abstimmung(wahl)
+    end
+  end
+
+  def get_aktuelle_abstimmung_with_position_and_options(wahl_slug) do
+    with {:ok, wahl} <- get_wahl_by_slug(wahl_slug) do
+      Abstimmungen.get_aktuelle_abstimmung_with_position_and_options(wahl)
+    end
   end
 
   @doc """
@@ -132,11 +148,11 @@ defmodule RbagElections.Wahlen do
 
   """
   def list_positionen(wahl_slug) do
-    wahl = get_wahl_by_slug!(wahl_slug)
-
-    Position
-    |> where(wahl_id: ^wahl.id)
-    |> Repo.all()
+    with {:ok, wahl} <- get_wahl_by_slug(wahl_slug) do
+      Position
+      |> where(wahl_id: ^wahl.id)
+      |> Repo.all()
+    end
   end
 
   @doc """
@@ -168,11 +184,11 @@ defmodule RbagElections.Wahlen do
 
   """
   def create_position(wahl_slug, attrs \\ %{}) do
-    wahl = get_wahl_by_slug!(wahl_slug)
-
-    %Position{wahl_id: wahl.id}
-    |> Position.changeset(attrs)
-    |> Repo.insert()
+    with {:ok, wahl} <- get_wahl_by_slug(wahl_slug) do
+      %Position{wahl_id: wahl.id}
+      |> Position.changeset(attrs)
+      |> Repo.insert()
+    end
   end
 
   @doc """
@@ -220,31 +236,6 @@ defmodule RbagElections.Wahlen do
   """
   def change_position(%Position{} = position, attrs \\ %{}) do
     Position.changeset(position, attrs)
-  end
-
-  @doc """
-  Returns the list of Abstimmungen.
-
-  ## Examples
-
-      iex> get_position_with_options(wahl_slug)
-      %Position{optionen: [%Option{}, ...]
-
-      iex> get_position_with_options(noSlug!)
-      nil
-  """
-  def get_position_with_options(wahl_slug) do
-    wahl =
-      Wahl
-      |> where(slug: ^wahl_slug)
-      # TODO: Is this function just for aktuelle position? Then we should rename it to get_aktuelle_position_with_options
-      # Even in case aktuelle abstimmung is fetched, we need to handle the case it is nil without crashing wit "key :position_id not found in: nil" on line position_id = wahl.aktuelle_abstimmung.position_id
-      |> preload(positionen: :optionen, aktuelle_abstimmung: :position)
-      |> Repo.one!()
-
-    position_id = wahl.aktuelle_abstimmung.position_id
-    Enum.find(wahl.positionen, fn position -> position.id == position_id end)
-    # TODO would it be easier to just preload the options of the aktuelle_abstimmung.position and NOT the positionen and options of the wahl?
   end
 
   alias RbagElections.Wahlen.Option

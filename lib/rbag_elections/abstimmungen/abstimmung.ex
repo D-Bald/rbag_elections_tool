@@ -15,6 +15,8 @@ defmodule RbagElections.Abstimmungen.Abstimmung do
     abstimmung
     |> cast(attrs, [:wahl_id, :position_id])
     |> validate_required([:position_id])
+    # Der check auf einen bestehenden unique constraint sorgt dafür, dass auf Datenbankebene versichert wird,
+    # dass es nur eine (aktuelle) Abstimmung pro Wahl gibt.
     |> unique_constraint(:wahl_id)
     |> foreign_key_constraint(:wahl_id)
     |> foreign_key_constraint(:position_id)

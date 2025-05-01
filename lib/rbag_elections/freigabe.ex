@@ -37,13 +37,14 @@ defmodule RbagElections.Freigabe do
   end
 
   def stelle_anfrage_auf_freigabe(token_value, wahl_slug) do
-    wahl = Wahlen.get_wahl_by_slug!(wahl_slug)
-    token = get_token_by_session_token_value(token_value)
-    # TODO add error handling: What if token is nil?
-    # TODO: do all this in one transaction
-    %WahlFreigabe{freigegeben: false, token_id: token.id, wahl_id: wahl.id}
-    |> WahlFreigabe.changeset()
-    |> Repo.insert()
+    with {:ok, wahl} <- Wahlen.get_wahl_by_slug(wahl_slug) do
+      token = get_token_by_session_token_value(token_value)
+      # TODO add error handling: What if token is nil?
+      # TODO: do all this in one transaction
+      %WahlFreigabe{freigegeben: false, token_id: token.id, wahl_id: wahl.id}
+      |> WahlFreigabe.changeset()
+      |> Repo.insert()
+    end
   end
 
   @doc """
@@ -131,6 +132,10 @@ defmodule RbagElections.Freigabe do
     Token
     |> where(value: ^value)
     |> Repo.delete_all()
+  end
+
+  def delete_token(%Token{} = token) do
+    Repo.delete(token)
   end
 
   @doc """

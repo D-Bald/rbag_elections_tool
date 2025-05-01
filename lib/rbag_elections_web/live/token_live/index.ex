@@ -38,12 +38,12 @@ defmodule RbagElectionsWeb.TokenLive.Index do
   @impl true
   def handle_params(%{"wahl_slug" => wahl_slug}, _url, socket) do
     pending_tokens = Freigabe.list_pending_tokens(wahl_slug)
-    IO.inspect(pending_tokens, label: "Pending Tokens")
     confirmed_tokens = Freigabe.list_confirmed_tokens(wahl_slug)
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(wahl_slug)
 
     {:noreply,
      assign(socket,
-       wahl: Wahlen.get_wahl_by_slug!(wahl_slug),
+       wahl: wahl,
        pending_tokens: pending_tokens,
        confirmed_tokens: confirmed_tokens
      )}
@@ -63,6 +63,7 @@ defmodule RbagElectionsWeb.TokenLive.Index do
          # TODO: Warum wird das token nicht aus der Liste entfernt?
          |> update(:pending_tokens, fn tokens -> Enum.reject(tokens, &(&1.id == id)) end)
          |> update(:confirmed_tokens, fn tokens -> [token | tokens] end)}
+
       {:error, _reason} ->
         {:noreply, socket}
     end

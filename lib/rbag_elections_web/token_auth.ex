@@ -204,7 +204,7 @@ defmodule RbagElectionsWeb.TokenAuth do
   """
   def require_confirmed_token(conn, _opts) do
     token = conn.assigns[:current_token]
-    wahl = Wahlen.get_wahl_by_slug!(conn.params["wahl_slug"])
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(conn.params["wahl_slug"])
 
     if token && Freigabe.erteilt?(token, wahl) do
       conn

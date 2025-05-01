@@ -27,18 +27,18 @@ defmodule RbagElectionsWeb.WahlController do
   end
 
   def show(conn, %{"slug" => slug}) do
-    wahl = Wahlen.get_wahl_by_slug!(slug)
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(slug)
     render(conn, :show, wahl: wahl)
   end
 
   def edit(conn, %{"slug" => slug}) do
-    wahl = Wahlen.get_wahl_by_slug!(slug)
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(slug)
     changeset = Wahlen.change_wahl(wahl)
     render(conn, :edit, wahl: wahl, changeset: changeset)
   end
 
   def update(conn, %{"slug" => slug, "wahl" => wahl_params}) do
-    wahl = Wahlen.get_wahl_by_slug!(slug)
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(slug)
 
     case Wahlen.update_wahl(wahl, wahl_params) do
       {:ok, wahl} ->
@@ -52,7 +52,7 @@ defmodule RbagElectionsWeb.WahlController do
   end
 
   def delete(conn, %{"slug" => slug}) do
-    wahl = Wahlen.get_wahl_by_slug!(slug)
+    {:ok, wahl} = Wahlen.get_wahl_by_slug(slug)
     {:ok, _wahl} = Wahlen.delete_wahl(wahl)
 
     conn
