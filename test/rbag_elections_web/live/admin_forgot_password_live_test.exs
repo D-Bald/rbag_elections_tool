@@ -13,7 +13,7 @@ defmodule RbagElectionsWeb.AdminForgotPasswordLiveTest do
 
       assert html =~ "Forgot your password?"
       assert has_element?(lv, ~s|a[href="#{~p"/admins/register"}"]|, "Register")
-      assert has_element?(lv, ~s|a[href="#{~p"/admins/log_in"}"]|, "Log in")
+      assert has_element?(lv, ~s|a[href="#{~p"/admins/login"}"]|, "Log in")
     end
 
     test "redirects if already logged in", %{conn: conn} do

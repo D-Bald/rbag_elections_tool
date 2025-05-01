@@ -5,6 +5,7 @@ defmodule RbagElectionsWeb.TokenAuth do
   import Phoenix.Controller
 
   alias RbagElections.Freigabe
+  alias RbagElections.Wahlen
 
   # Make the remember me cookie valid for 60 days.
   @max_age 60 * 60 * 24 * 60
@@ -25,6 +26,9 @@ defmodule RbagElectionsWeb.TokenAuth do
   """
   def log_in_token(conn, besitzer, params \\ %{}) do
     token = Freigabe.generate_session_token(besitzer)
+
+    slug = get_session(conn, :wahl_slug_return_to)
+    slug && Freigabe.stelle_anfrage_auf_freigabe(token, slug)
 
     conn
     |> renew_session()
@@ -200,8 +204,9 @@ defmodule RbagElectionsWeb.TokenAuth do
   """
   def require_confirmed_token(conn, _opts) do
     token = conn.assigns[:current_token]
+    wahl = Wahlen.get_wahl_by_slug!(conn.params["wahl_slug"])
 
-    if token && token.freigegeben do
+    if token && Freigabe.erteilt?(token, wahl) do
       conn
     else
       conn
@@ -239,10 +244,31 @@ defmodule RbagElectionsWeb.TokenAuth do
   end
 
   defp maybe_store_return_to(%{method: "GET"} = conn) do
-    put_session(conn, :token_return_to, current_path(conn))
+    wahl_slug = conn.path_params["wahl_slug"]
+
+    if wahl_slug do
+      put_session(conn, :wahl_slug_return_to, wahl_slug)
+    else
+      conn
+    end
   end
 
   defp maybe_store_return_to(conn), do: conn
 
-  defp signed_in_path(_conn), do: ~p"/warteraum"
+  defp signed_in_path(conn_or_socket) do
+    wahl_slug = get_wahl_slug(conn_or_socket)
+    ~p"/#{wahl_slug}/warteraum"
+  end
+
+  defp get_wahl_slug(%Plug.Conn{} = conn) do
+    get_session(conn, :wahl_slug_return_to)
+  end
+
+  defp get_wahl_slug(%Phoenix.LiveView.Socket{} = socket) do
+    # TODO: Prüfen, ob der part für assigns[:session] benötigt wird
+    socket.assigns[:wahl_slug_return_to] ||
+      (socket.assigns[:session] && socket.assigns[:session]["wahl_slug_return_to"])
+  end
+
+  defp get_wahl_slug(_), do: nil
 end

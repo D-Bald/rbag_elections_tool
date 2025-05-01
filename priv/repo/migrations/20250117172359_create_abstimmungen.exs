@@ -9,7 +9,7 @@ defmodule RbagElections.Repo.Migrations.CreateAbstimmungen do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:abstimmungen, [:wahl_id])
+    create unique_index(:abstimmungen, [:wahl_id])
     create index(:abstimmungen, [:position_id])
   end
 end

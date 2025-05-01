@@ -3,10 +3,9 @@ defmodule RbagElections.Abstimmungen.Stimme do
   import Ecto.Changeset
 
   schema "stimmen" do
+    @primary_key {:id, :binary_id, autogenerate: true}
     belongs_to :abstimmung, RbagElections.Abstimmungen.Abstimmung
     belongs_to :option, RbagElections.Wahlen.Option
-
-    timestamps(type: :utc_datetime)
   end
 
   @doc false

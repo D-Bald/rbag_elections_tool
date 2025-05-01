@@ -5,8 +5,6 @@ defmodule RbagElections.Repo.Migrations.CreateAbgaben do
     create table(:abgaben) do
       add :token_id, references(:tokens, on_delete: :delete_all)
       add :abstimmung_id, references(:abstimmungen, on_delete: :delete_all)
-
-      timestamps(type: :utc_datetime)
     end
 
     create unique_index(:abgaben, [:token_id, :abstimmung_id])

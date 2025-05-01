@@ -6,7 +6,9 @@ defmodule RbagElectionsWeb.TokenSessionController do
   def create(conn, %{"token" => token_params}) do
     conn
     |> put_flash(:info, "Jetzt kann es losgehen")
-    |> TokenAuth.log_in_token(token_params["besitzer"], %{"remember_me" => "true"})
+    |> TokenAuth.log_in_token(token_params["besitzer"], %{
+      "remember_me" => "true"
+    })
   end
 
   def delete(conn, _params) do

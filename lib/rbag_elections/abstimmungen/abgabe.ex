@@ -5,8 +5,6 @@ defmodule RbagElections.Abstimmungen.Abgabe do
   schema "abgaben" do
     belongs_to :token, RbagElections.Freigabe.Token
     belongs_to :abstimmung, RbagElections.Abstimmungen.Abstimmung
-
-    timestamps(type: :utc_datetime)
   end
 
   @doc false

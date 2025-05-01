@@ -27,7 +27,7 @@ defmodule RbagElectionsWeb.TokenRegistrationLive do
         <.input field={@form[:besitzer]} type="text" label="Name" required />
 
         <:actions>
-          <.button phx-disable-with="Warte auf bestötigung..." class="w-full">Teilnehmen</.button>
+          <.button phx-disable-with="Warte auf Bestätigung..." class="w-full">Teilnehmen</.button>
         </:actions>
       </.simple_form>
     </div>

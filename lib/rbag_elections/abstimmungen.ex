@@ -5,6 +5,7 @@ defmodule RbagElections.Abstimmungen do
 
   import Ecto.Query, warn: false
   alias RbagElections.Repo
+  alias Phoenix.PubSub
 
   alias RbagElections.Abstimmungen.Abstimmung
   alias RbagElections.Abstimmungen.Abgabe
@@ -56,13 +57,14 @@ defmodule RbagElections.Abstimmungen do
   ## Examples
 
       iex> get_abstimmung_by_wahl_slug(some-slug)
-      %Abstimmung{}
+      {:ok, %Abstimmung{}}
 
       iex> get_abstimmung_by_wahl_slug(NoSlug!)
-      nil
+       {:error, "No Abstimmung found for Wahl with slug NoSlug"}
 
   """
   def get_abstimmung_by_wahl_slug(wahl_slug) do
+    # TODO: Make this not raise error and instead use with {:ok, wahl} <- Wahlen.get_wahl_by_slug(wahl_slug) do
     wahl = Wahlen.get_wahl_by_slug!(wahl_slug)
 
     case Repo.get_by(Abstimmung, wahl_id: wahl.id) do
@@ -83,13 +85,14 @@ defmodule RbagElections.Abstimmungen do
       {:error, %Ecto.Changeset{}}
 
   """
-  defp create_abstimmung(attrs \\ %{}) do
+  defp create_abstimmung(attrs) do
     %Abstimmung{}
     |> Abstimmung.changeset(attrs)
     |> Repo.insert()
   end
 
   def start_abstimmung(wahl_id, position_id) do
+    # TODO: Validate, that Wahl has no other aktuelle_abstimmung!
     create_abstimmung(%{wahl_id: wahl_id, position_id: position_id})
   end
 
@@ -359,31 +362,19 @@ defmodule RbagElections.Abstimmungen do
   end
 
   def submit(wahl_slug, %Option{} = option, %Token{} = token) when is_binary(wahl_slug) do
-    case get_abstimmung_by_wahl_slug(wahl_slug) do
-      {:error, reason} -> {:error, reason}
-      {:ok, abstimmung} -> submit(abstimmung, option, token)
+    with {:ok, abstimmung} <- get_abstimmung_by_wahl_slug(wahl_slug) do
+      submit(abstimmung, option, token)
     end
   end
 
   def submit(%Abstimmung{} = abstimmung, %Option{} = option, %Token{} = token) do
     # TODO: Make this nicer with https://hexdocs.pm/ecto/Ecto.Multi.html
     Repo.transaction(fn ->
-      case create_abgabe(%{
-             abstimmung_id: abstimmung.id,
-             token_id: token.id
-           }) do
-        {:ok, _abgabe} ->
-          case create_stimme(%{
-                 abstimmung_id: abstimmung.id,
-                 option_id: option.id
-               }) do
-            {:ok, stimme} ->
-              {:ok, stimme}
-
-            {:error, changeset} ->
-              Repo.rollback(changeset)
-          end
-
+      with {:ok, _abgabe} <- create_abgabe(%{abstimmung_id: abstimmung.id, token_id: token.id}),
+           {:ok, stimme} <- create_stimme(%{abstimmung_id: abstimmung.id, option_id: option.id}) do
+        PubSub.broadcast(RbagElections.PubSub, "token:stimme_gezählt", %{token_id: token.id})
+        {:ok, stimme}
+      else
         {:error, changeset} ->
           Repo.rollback(changeset)
       end
@@ -403,11 +394,14 @@ defmodule RbagElections.Abstimmungen do
   end
 
   def get_position_with_options(abstimmung_id) do
+    # with {:ok, abstimmung} <- get_abstimmung(abstimmung_id) do
     abstimmung = get_abstimmung!(abstimmung_id)
 
     Position
     |> where([p], p.id == ^abstimmung.position_id)
     |> preload(:optionen)
     |> Repo.one()
+
+    # end
   end
 end

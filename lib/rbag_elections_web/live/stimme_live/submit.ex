@@ -30,8 +30,13 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
     """
   end
 
+  # TODO: Hier auch Login als LiveComponent einbinden und über action entscheiden, was gerendert wird
+  # TODO: Hier auch Warteraum durch conditional rendering ersetzen
+  # TODO: Auslagern des Wahlformulars in eigene LiveComponent
+
   @impl true
   def mount(%{"wahl_slug" => wahl_slug}, _session, socket) do
+    # TODO: Fall handlen, wenn es keine aktuelle abstimmung gibt => Warteraum rendern?
     position = Wahlen.get_position_with_options(wahl_slug)
 
     {:ok,

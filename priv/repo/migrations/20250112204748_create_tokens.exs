@@ -5,7 +5,6 @@ defmodule RbagElections.Repo.Migrations.CreateTokens do
     create table(:tokens) do
       add :value, :binary, null: false
       add :besitzer, :string, null: false
-      add :freigegeben, :boolean, default: false, null: false
 
       timestamps(type: :utc_datetime)
     end

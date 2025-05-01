@@ -7,10 +7,10 @@ defmodule RbagElectionsWeb.AdminSessionControllerTest do
     %{admin: admin_fixture()}
   end
 
-  describe "POST /admins/log_in" do
+  describe "POST /admins/login" do
     test "logs the admin in", %{conn: conn, admin: admin} do
       conn =
-        post(conn, ~p"/admins/log_in", %{
+        post(conn, ~p"/admins/login", %{
           "admin" => %{"email" => admin.email, "password" => valid_admin_password()}
         })
 
@@ -22,12 +22,12 @@ defmodule RbagElectionsWeb.AdminSessionControllerTest do
       response = html_response(conn, 200)
       assert response =~ admin.email
       assert response =~ ~p"/admins/settings"
-      assert response =~ ~p"/admins/log_out"
+      assert response =~ ~p"/admins/logout"
     end
 
     test "logs the admin in with remember me", %{conn: conn, admin: admin} do
       conn =
-        post(conn, ~p"/admins/log_in", %{
+        post(conn, ~p"/admins/login", %{
           "admin" => %{
             "email" => admin.email,
             "password" => valid_admin_password(),
@@ -43,7 +43,7 @@ defmodule RbagElectionsWeb.AdminSessionControllerTest do
       conn =
         conn
         |> init_test_session(admin_return_to: "/foo/bar")
-        |> post(~p"/admins/log_in", %{
+        |> post(~p"/admins/login", %{
           "admin" => %{
             "email" => admin.email,
             "password" => valid_admin_password()
@@ -57,7 +57,7 @@ defmodule RbagElectionsWeb.AdminSessionControllerTest do
     test "login following registration", %{conn: conn, admin: admin} do
       conn =
         conn
-        |> post(~p"/admins/log_in", %{
+        |> post(~p"/admins/login", %{
           "_action" => "registered",
           "admin" => %{
             "email" => admin.email,
@@ -72,7 +72,7 @@ defmodule RbagElectionsWeb.AdminSessionControllerTest do
     test "login following password update", %{conn: conn, admin: admin} do
       conn =
         conn
-        |> post(~p"/admins/log_in", %{
+        |> post(~p"/admins/login", %{
           "_action" => "password_updated",
           "admin" => %{
             "email" => admin.email,
@@ -86,25 +86,25 @@ defmodule RbagElectionsWeb.AdminSessionControllerTest do
 
     test "redirects to login page with invalid credentials", %{conn: conn} do
       conn =
-        post(conn, ~p"/admins/log_in", %{
+        post(conn, ~p"/admins/login", %{
           "admin" => %{"email" => "invalid@email.com", "password" => "invalid_password"}
         })
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Invalid email or password"
-      assert redirected_to(conn) == ~p"/admins/log_in"
+      assert redirected_to(conn) == ~p"/admins/login"
     end
   end
 
-  describe "DELETE /admins/log_out" do
+  describe "DELETE /admins/logout" do
     test "logs the admin out", %{conn: conn, admin: admin} do
-      conn = conn |> log_in_admin(admin) |> delete(~p"/admins/log_out")
+      conn = conn |> log_in_admin(admin) |> delete(~p"/admins/logout")
       assert redirected_to(conn) == ~p"/"
       refute get_session(conn, :admin_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
 
     test "succeeds even if the admin is not logged in", %{conn: conn} do
-      conn = delete(conn, ~p"/admins/log_out")
+      conn = delete(conn, ~p"/admins/logout")
       assert redirected_to(conn) == ~p"/"
       refute get_session(conn, :admin_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"

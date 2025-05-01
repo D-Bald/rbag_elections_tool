@@ -214,7 +214,9 @@ defmodule RbagElectionsWeb.AdminAuthTest do
 
   describe "redirect_if_admin_is_authenticated/2" do
     test "redirects if admin is authenticated", %{conn: conn, admin: admin} do
-      conn = conn |> assign(:current_admin, admin) |> AdminAuth.redirect_if_admin_is_authenticated([])
+      conn =
+        conn |> assign(:current_admin, admin) |> AdminAuth.redirect_if_admin_is_authenticated([])
+
       assert conn.halted
       assert redirected_to(conn) == ~p"/"
     end
@@ -231,7 +233,7 @@ defmodule RbagElectionsWeb.AdminAuthTest do
       conn = conn |> fetch_flash() |> AdminAuth.require_authenticated_admin([])
       assert conn.halted
 
-      assert redirected_to(conn) == ~p"/admins/log_in"
+      assert redirected_to(conn) == ~p"/admins/login"
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "You must log in to access this page."

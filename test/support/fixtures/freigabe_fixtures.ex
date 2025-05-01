@@ -15,15 +15,7 @@ defmodule RbagElections.FreigabeFixtures do
   Generate a token.
   """
   def token_fixture(attrs \\ %{}) do
-    {:ok, token} =
-      attrs
-      |> Enum.into(%{
-        besitzer: "some besitzer",
-        freigegeben: true,
-        uuid: unique_token_uuid()
-      })
-      |> RbagElections.Freigabe.create_token()
-
-    token
+    {_value, token } = Token.build_session_token("some besitzer")
+    Repo.insert!(token)
   end
 end

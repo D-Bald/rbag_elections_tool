@@ -61,7 +61,7 @@ defmodule RbagElectionsWeb.AdminResetPasswordLiveTest do
           }
         )
         |> render_submit()
-        |> follow_redirect(conn, ~p"/admins/log_in")
+        |> follow_redirect(conn, ~p"/admins/login")
 
       refute get_session(conn, :admin_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Password reset successfully"
@@ -95,7 +95,7 @@ defmodule RbagElectionsWeb.AdminResetPasswordLiveTest do
         lv
         |> element(~s|main a:fl-contains("Log in")|)
         |> render_click()
-        |> follow_redirect(conn, ~p"/admins/log_in")
+        |> follow_redirect(conn, ~p"/admins/login")
 
       assert conn.resp_body =~ "Log in"
     end

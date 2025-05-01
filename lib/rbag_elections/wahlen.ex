@@ -237,11 +237,14 @@ defmodule RbagElections.Wahlen do
     wahl =
       Wahl
       |> where(slug: ^wahl_slug)
+      # TODO: Is this function just for aktuelle position? Then we should rename it to get_aktuelle_position_with_options
+      # Even in case aktuelle abstimmung is fetched, we need to handle the case it is nil without crashing wit "key :position_id not found in: nil" on line position_id = wahl.aktuelle_abstimmung.position_id
       |> preload(positionen: :optionen, aktuelle_abstimmung: :position)
       |> Repo.one!()
 
     position_id = wahl.aktuelle_abstimmung.position_id
     Enum.find(wahl.positionen, fn position -> position.id == position_id end)
+    # TODO would it be easier to just preload the options of the aktuelle_abstimmung.position and NOT the positionen and options of the wahl?
   end
 
   alias RbagElections.Wahlen.Option

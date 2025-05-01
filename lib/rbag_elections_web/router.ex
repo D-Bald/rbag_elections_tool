@@ -37,18 +37,18 @@ defmodule RbagElectionsWeb.Router do
 
     live_session :redirect_if_admin_is_authenticated,
       on_mount: [{RbagElectionsWeb.AdminAuth, :redirect_if_admin_is_authenticated}] do
-      # live "/admins/register", AdminRegistrationLive, :new
-      live "/admins/log_in", AdminLoginLive, :new
+      live "/admins/register", AdminRegistrationLive, :new
+      live "/admins/login", AdminLoginLive, :new
     end
 
-    post "/admins/log_in", AdminSessionController, :create
+    post "/admins/login", AdminSessionController, :create
   end
 
   scope "/", RbagElectionsWeb do
     pipe_through [:browser]
 
-    delete "/admins/log_out", AdminSessionController, :delete
-    delete "/tokens/log_out", TokenSessionController, :delete
+    delete "/admins/logout", AdminSessionController, :delete
+    delete "/tokens/logout", TokenSessionController, :delete
   end
 
   ## Admin routes
@@ -69,14 +69,14 @@ defmodule RbagElectionsWeb.Router do
 
     live_session :require_authenticated_admin,
       on_mount: [{RbagElectionsWeb.AdminAuth, :ensure_authenticated}] do
-      live "/tokens", TokenLive.Index, :index
+      live "/:wahl_slug/tokens", TokenLive.Index, :index
       live "/wahlen/:abstimmung_id/ergebnisse", StimmeLive.Aggregate, :index
     end
   end
 
   ## Routes with confirmed token
 
-  scope "/", RbagElectionsWeb do
+  scope "/:wahl_slug", RbagElectionsWeb do
     pipe_through [:browser, :require_authenticated_token]
 
     live_session :require_authenticated_token,
@@ -85,12 +85,12 @@ defmodule RbagElectionsWeb.Router do
     end
   end
 
-  scope "/", RbagElectionsWeb do
+  scope "/:wahl_slug", RbagElectionsWeb do
     pipe_through [:browser, :require_confirmed_token]
 
     live_session :require_confirmed_token,
       on_mount: [{RbagElectionsWeb.TokenAuth, :ensure_authenticated}] do
-      live "/geheime-wahl/:wahl_slug", StimmeLive.Submit, :new
+      live "/", StimmeLive.Submit, :new
     end
   end
 

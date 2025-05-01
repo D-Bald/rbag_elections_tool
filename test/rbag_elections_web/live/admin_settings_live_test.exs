@@ -20,7 +20,7 @@ defmodule RbagElectionsWeb.AdminSettingsLiveTest do
       assert {:error, redirect} = live(conn, ~p"/admins/settings")
 
       assert {:redirect, %{to: path, flash: flash}} = redirect
-      assert path == ~p"/admins/log_in"
+      assert path == ~p"/admins/login"
       assert %{"error" => "You must log in to access this page."} = flash
     end
   end
@@ -165,7 +165,11 @@ defmodule RbagElectionsWeb.AdminSettingsLiveTest do
 
       token =
         extract_admin_token(fn url ->
-          Management.deliver_admin_update_email_instructions(%{admin | email: email}, admin.email, url)
+          Management.deliver_admin_update_email_instructions(
+            %{admin | email: email},
+            admin.email,
+            url
+          )
         end)
 
       %{conn: log_in_admin(conn, admin), token: token, email: email, admin: admin}
@@ -202,7 +206,7 @@ defmodule RbagElectionsWeb.AdminSettingsLiveTest do
       conn = build_conn()
       {:error, redirect} = live(conn, ~p"/admins/settings/confirm_email/#{token}")
       assert {:redirect, %{to: path, flash: flash}} = redirect
-      assert path == ~p"/admins/log_in"
+      assert path == ~p"/admins/login"
       assert %{"error" => message} = flash
       assert message == "You must log in to access this page."
     end

@@ -11,7 +11,7 @@ defmodule RbagElectionsWeb.AdminRegistrationLive do
         Register for an account
         <:subtitle>
           Already registered?
-          <.link navigate={~p"/admins/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/admins/login"} class="font-semibold text-brand hover:underline">
             Log in
           </.link>
           to your account now.
@@ -24,7 +24,7 @@ defmodule RbagElectionsWeb.AdminRegistrationLive do
         phx-submit="save"
         phx-change="validate"
         phx-trigger-action={@trigger_submit}
-        action={~p"/admins/log_in?_action=registered"}
+        action={~p"/admins/login?_action=registered"}
         method="post"
       >
         <.error :if={@check_errors}>

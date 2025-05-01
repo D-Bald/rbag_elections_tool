@@ -15,6 +15,7 @@ defmodule RbagElections.Abstimmungen.Abstimmung do
     abstimmung
     |> cast(attrs, [:wahl_id, :position_id])
     |> validate_required([:position_id])
+    |> unique_constraint(:wahl_id)
     |> foreign_key_constraint(:wahl_id)
     |> foreign_key_constraint(:position_id)
   end

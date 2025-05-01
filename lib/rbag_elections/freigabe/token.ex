@@ -8,15 +8,15 @@ defmodule RbagElections.Freigabe.Token do
   schema "tokens" do
     field :value, :binary
     field :besitzer, :string
-    field :freigegeben, :boolean, default: false
 
+    has_many :wahlfreigaben, RbagElections.Freigabe.WahlFreigabe
     timestamps(type: :utc_datetime)
   end
 
   @doc false
   def changeset(token, attrs) do
     token
-    |> cast(attrs, [:value, :besitzer, :freigegeben])
+    |> cast(attrs, [:value, :besitzer])
     |> validate_required([:value, :besitzer])
     |> unique_constraint(:value)
   end

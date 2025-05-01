@@ -61,7 +61,10 @@ defmodule RbagElectionsWeb.PositionController do
     |> redirect(to: ~p"/wahlen/#{wahl_slug}/positionen")
   end
 
+  # TODO: Make a new LiveView for this
   def manage_abstimmung(conn, %{"wahl_slug" => wahl_slug}) do
+    # TODO: Load all tokens for this Wahl and mark those without a related Abstimmung with red background
+    # TODO In the new LiveView: Subscribe to "token:stimme_gezähl" and update background-colors for tokens with submitted Abgaben in realtime
     case Abstimmungen.get_abstimmung_by_wahl_slug(wahl_slug) do
       {:ok, abstimmung} ->
         abgaben = Abstimmungen.list_abgaben_for_abstimmung(abstimmung.id)
@@ -113,6 +116,7 @@ defmodule RbagElectionsWeb.PositionController do
   end
 
   def list_abstimmungen(conn, %{"wahl_slug" => wahl_slug, "position_id" => position_id}) do
+    # TODO: Aktuell laufende Abstimmung hier ausschließen, um nicht in Verbindung mit abgegebenen Tokens herauszufinden, wer wie gewählt hat
     abstimmungen = Abstimmungen.list_abstimmungen_for_position(position_id)
     render(conn, :list_abstimmungen, wahl_slug: wahl_slug, abstimmungen: abstimmungen)
   end
