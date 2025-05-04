@@ -52,11 +52,15 @@ defmodule RbagElections.Wahlen do
       {:error, "Wahl with slug non-existent-slug not found"}
 
   """
-  def get_wahl_by_slug(slug) do
+  def get_wahl_by_slug(slug) when not is_nil(slug) do
     case Repo.get_by(Wahl, slug: slug) do
       nil -> {:error, "Wahl with slug #{slug} not found"}
       wahl -> {:ok, wahl}
     end
+  end
+
+  def get_wahl_by_slug(nil) do
+    {:error, "Wahl slug cannot be nil"}
   end
 
   def get_aktuelle_abstimmung(wahl_slug) do

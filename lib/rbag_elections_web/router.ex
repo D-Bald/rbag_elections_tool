@@ -19,6 +19,13 @@ defmodule RbagElectionsWeb.Router do
     plug :accepts, ["json"]
   end
 
+  ## Home route
+  scope "/", RbagElectionsWeb do
+    pipe_through [:browser]
+
+    get "/", PageController, :home
+  end
+
   ## Authentication routes
 
   scope "/", RbagElectionsWeb do
