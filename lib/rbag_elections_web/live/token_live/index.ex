@@ -4,6 +4,7 @@ defmodule RbagElectionsWeb.TokenLive.Index do
   alias RbagElections.Freigabe
   alias RbagElections.Wahlen
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-7xl">
@@ -11,19 +12,29 @@ defmodule RbagElectionsWeb.TokenLive.Index do
         Benutzer bestätigen
       </.header>
 
-      <h2 class="text-lg">Pending Tokens</h2>
-      <.table id="pending_tokens" rows={@pending_tokens}>
-        <:col :let={token} label="Name">{token.besitzer}</:col>
-        <:action :let={token}>
-          <button phx-click="confirm" phx-value-id={token.id}>Bestätigen</button>
+      <h2 class="text-lg">Offene Freigaben</h2>
+      <.table id="offene_freigaben" rows={@offene_freigaben}>
+        <:col :let={freigabe} label="Name">{freigabe.token.besitzer}</:col>
+        <:action :let={freigabe}>
+          <button phx-click="confirm" phx-value-id={freigabe.id}>Bestätigen</button>
         </:action>
       </.table>
 
-      <h2 class="text-lg">Registered Users</h2>
-      <.table id="confirmed_tokens" rows={@confirmed_tokens}>
-        <:col :let={token} label="Name">{token.besitzer}</:col>
-        <:action :let={token}>
-          <button phx-click="delete" phx-value-id={token.id}>Löschen</button>
+      <h2 class="text-lg">Bestätigte Freigaben</h2>
+      <.table id="erteilte_freigaben" rows={@erteilte_freigaben}>
+        <:col :let={freigabe} label="Name">{freigabe.token.besitzer}</:col>
+        <:action :let={freigabe}>
+          <button phx-click="reject" phx-value-id={freigabe.id}>Widerrufen</button>
+        </:action>
+      </.table>
+
+      <h2 class="text-lg">Abgelehnte Freigaben</h2>
+      <.table id="abgelehnte_freigaben" rows={@abgelehnte_freigaben}>
+        <:col :let={freigabe} label="Name">{freigabe.token.besitzer}</:col>
+        <:action :let={freigabe}>
+          <button phx-click="rehabilitate" phx-value-id={freigabe.id}>Bestätigen</button>
+          <span>|</span>
+          <button phx-click="delete" phx-value-id={freigabe.id}>Entgültig löschen</button>
         </:action>
       </.table>
     </div>
@@ -32,56 +43,99 @@ defmodule RbagElectionsWeb.TokenLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    # TODO: subscribe to new freigaben anfragen
+
     {:ok, socket}
   end
 
   @impl true
   def handle_params(%{"wahl_slug" => wahl_slug}, _url, socket) do
-    pending_tokens = Freigabe.list_pending_tokens(wahl_slug)
-    confirmed_tokens = Freigabe.list_confirmed_tokens(wahl_slug)
+    offene_freigaben = Freigabe.list_offene_freigaben(wahl_slug)
+    erteilte_freigaben = Freigabe.list_erteilte_freigaben(wahl_slug)
+    abgelehnte_freigaben = Freigabe.list_abgelehnte_freigaben(wahl_slug)
     {:ok, wahl} = Wahlen.get_wahl_by_slug(wahl_slug)
 
     {:noreply,
      assign(socket,
        wahl: wahl,
-       pending_tokens: pending_tokens,
-       confirmed_tokens: confirmed_tokens
+       offene_freigaben: offene_freigaben,
+       erteilte_freigaben: erteilte_freigaben,
+       abgelehnte_freigaben: abgelehnte_freigaben
      )}
   end
 
-  # TODO: hier mit "stream_insert" und "stream_delete" arbeiten? (siehe AbstimmungLive.Index)
-
+  @impl true
   def handle_event("confirm", %{"id" => id}, socket) do
-    token =
-      socket.assigns.pending_tokens
-      |> Enum.find(fn token -> token.id == String.to_integer(id) end)
+    move_freigabe(
+      socket,
+      id,
+      :offene_freigaben,
+      :erteilte_freigaben,
+      &Freigabe.erteilen/1
+    )
+  end
 
-    case Freigabe.confirm_token_for_wahl(token, socket.assigns.wahl) do
-      {:ok, token} ->
+  @impl true
+  def handle_event("rehabilitate", %{"id" => id}, socket) do
+    move_freigabe(
+      socket,
+      id,
+      :abgelehnte_freigaben,
+      :erteilte_freigaben,
+      &Freigabe.erteilen/1
+    )
+  end
+
+  @impl true
+  def handle_event("reject", %{"id" => id}, socket) do
+    move_freigabe(
+      socket,
+      id,
+      :erteilte_freigaben,
+      :abgelehnte_freigaben,
+      &Freigabe.ablehnen/1
+    )
+  end
+
+  @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    id = String.to_integer(id)
+    freigabe = find_freigabe_by_id(socket.assigns.abgelehnte_freigaben, id)
+
+    case Freigabe.löschen(freigabe) do
+      {:ok, _} ->
         {:noreply,
          socket
-         # TODO: Warum wird das token nicht aus der Liste entfernt?
-         |> update(:pending_tokens, fn tokens -> Enum.reject(tokens, &(&1.id == id)) end)
-         |> update(:confirmed_tokens, fn tokens -> [token | tokens] end)}
+         |> update(:abgelehnte_freigaben, fn freigaben ->
+           Enum.reject(freigaben, &(&1.id == id))
+         end)}
 
       {:error, _reason} ->
         {:noreply, socket}
     end
   end
 
-  def handle_event("delete", %{"id" => id}, socket) do
-    token =
-      socket.assigns.confirmed_tokens
-      |> Enum.find(fn token -> token.id == String.to_integer(id) end)
+  defp move_freigabe(socket, id, from_list, to_list, action_fn) when is_binary(id) do
+    move_freigabe(socket, String.to_integer(id), from_list, to_list, action_fn)
+  end
 
-    case Freigabe.delete_token(token) do
-      {:ok, _} ->
+  defp move_freigabe(socket, id, from_list, to_list, action_fn) when is_integer(id) do
+    freigabe = find_freigabe_by_id(socket.assigns[from_list], id)
+
+    # TODO: hier mit "stream_insert" und "stream_delete" arbeiten? (siehe AbstimmungLive.Index)
+    case action_fn.(freigabe) do
+      {:ok, updated_freigabe} ->
         {:noreply,
          socket
-         |> update(:confirmed_tokens, fn tokens -> Enum.reject(tokens, &(&1.id == token.id)) end)}
+         |> update(from_list, fn freigaben -> Enum.reject(freigaben, &(&1.id == id)) end)
+         |> update(to_list, fn freigaben -> [updated_freigabe | freigaben] end)}
 
       {:error, _reason} ->
         {:noreply, socket}
     end
+  end
+
+  defp find_freigabe_by_id(freigaben, id) do
+    Enum.find(freigaben, fn freigabe -> freigabe.id == id end)
   end
 end

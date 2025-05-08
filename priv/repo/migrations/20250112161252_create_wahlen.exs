@@ -3,7 +3,7 @@ defmodule RbagElections.Repo.Migrations.CreateWahlen do
 
   def change do
     create table(:wahlen) do
-      add :slug, :string
+      add :slug, :string, null: false
 
       timestamps(type: :utc_datetime)
     end

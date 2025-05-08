@@ -3,7 +3,7 @@ defmodule RbagElections.Repo.Migrations.CreateWahlenTokens do
 
   def change do
     create table(:wahl_freigaben) do
-      add :freigegeben, :boolean, default: false, null: false
+      add :status, :string, null: false
       add :wahl_id, references(:wahlen)
       add :token_id, references(:tokens)
 

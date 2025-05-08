@@ -6,7 +6,7 @@ defmodule RbagElections.Freigabe.WahlFreigabe do
   alias RbagElections.Wahlen.Wahl
 
   schema "wahl_freigaben" do
-    field :freigegeben, :boolean, default: false
+    field :status, Ecto.Enum, values: [:offen, :erteilt, :abgelehnt], default: :offen
 
     belongs_to :token, Token
     belongs_to :wahl, Wahl
@@ -17,8 +17,8 @@ defmodule RbagElections.Freigabe.WahlFreigabe do
   @doc false
   def changeset(wahl_freigabe, attrs \\ %{}) do
     wahl_freigabe
-    |> cast(attrs, [:freigegeben, :token_id, :wahl_id])
-    |> validate_required([:freigegeben, :token_id, :wahl_id])
+    |> cast(attrs, [:status, :token_id, :wahl_id])
+    |> validate_required([:status, :token_id, :wahl_id])
     |> foreign_key_constraint(:token_id)
     |> foreign_key_constraint(:wahl_id)
     |> unique_constraint([:token_id, :wahl_id])

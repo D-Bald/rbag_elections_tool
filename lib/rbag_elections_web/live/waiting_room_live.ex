@@ -22,21 +22,34 @@ defmodule RbagElectionsWeb.WarteRaumLive do
       socket
       |> assign(:wahl_slug, wahl_slug)
 
-    wahl = RbagElections.Wahlen.get_wahl_by_slug!(wahl_slug)
+    {:ok, wahl} = RbagElections.Wahlen.get_wahl_by_slug(wahl_slug)
 
-    if socket.assigns.current_token && Freigabe.erteilt?(socket.assigns.current_token, wahl) do
-      {:ok, redirect(socket, to: "/#{wahl_slug}")}
-    else
-      {:ok, socket}
-    end
+    socket.assigns.current_token &&
+      case Freigabe.erteilt(socket.assigns.current_token, wahl) do
+        {:ok, true} ->
+          {:ok,
+           socket
+           |> redirect(to: "/#{wahl_slug}")}
+
+        _ ->
+          {:ok, socket}
+      end
   end
 
   @doc """
-  Listening to the `token:confirmed` PubSub event.
+  Listening to the Freigabe PubSub event.
   """
-  def handle_info(%Freigabe.Events.FreigabeErteilt{token: token}, socket) do
-    if token.id == socket.assigns.current_token.id do
+  def handle_info(%Freigabe.Events.FreigabeErteilt{wahl_freigabe: wahl_freigabe}, socket) do
+    if wahl_freigabe.token_id == socket.assigns.current_token.id do
       {:noreply, redirect(socket, to: "/#{socket.assigns.wahl_slug}")}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_info(%Freigabe.Events.FreigabeAbgelehnt{wahl_freigabe: wahl_freigabe}, socket) do
+    if wahl_freigabe.token_id == socket.assigns.current_token.id do
+      {:noreply, put_flash(socket, :error, "Deine Freigabe wurde abgelehnt.")}
     else
       {:noreply, socket}
     end

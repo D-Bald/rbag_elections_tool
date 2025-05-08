@@ -3,7 +3,7 @@ defmodule RbagElections.Repo.Migrations.CreateOptionen do
 
   def change do
     create table(:optionen) do
-      add :wert, :string
+      add :wert, :string, null: false
       add :position_id, references(:positionen, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)

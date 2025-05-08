@@ -204,17 +204,67 @@ defmodule RbagElectionsWeb.TokenAuth do
   """
   def require_confirmed_token(conn, _opts) do
     token = conn.assigns[:current_token]
-    {:ok, wahl} = Wahlen.get_wahl_by_slug(conn.params["wahl_slug"])
+    wahl_slug = conn.params["wahl_slug"]
 
-    if token && Freigabe.erteilt?(token, wahl) do
-      conn
-    else
-      conn
-      |> put_flash(:error, "You must log in to access this page.")
-      |> maybe_store_return_to()
-      |> redirect(to: ~p"/login")
-      |> halt()
+    cond do
+      is_nil(token) -> handle_missing_token(conn)
+      is_nil(wahl_slug) -> handle_missing_wahl(conn)
+      true -> validate_token_for_wahl(conn, token, wahl_slug)
     end
+  end
+
+  defp handle_missing_token(conn) do
+    conn
+    |> put_flash(:error, "You must log in to access this page.")
+    |> maybe_store_return_to()
+    |> redirect(to: ~p"/login")
+    |> halt()
+  end
+
+  defp handle_missing_wahl(conn) do
+    conn
+    |> put_flash(:error, "Wahl not found.")
+    |> redirect(to: ~p"/")
+    |> halt()
+  end
+
+  defp validate_token_for_wahl(conn, token, wahl_slug) do
+    with {:ok, wahl} <- Wahlen.get_wahl_by_slug(wahl_slug) do
+      case ensure_freigabe_status(conn, token, wahl) do
+        {:ok, :access_granted} -> conn
+        {:error, _reason} -> handle_missing_permission(conn)
+      end
+    else
+      {:error, _reason} ->
+        handle_missing_wahl(conn)
+    end
+  end
+
+  defp ensure_freigabe_status(conn, token, wahl) do
+    case Freigabe.erteilt(token, wahl) do
+      {:ok, true} ->
+        {:ok, :access_granted}
+
+      {:ok, false} ->
+        {:error, :permission_denied}
+
+      {:error, _reason} ->
+        token_value = get_session(conn, :token_value)
+        Freigabe.stelle_anfrage_auf_freigabe(token_value, wahl.slug)
+
+        {:error, :permission_requested}
+    end
+  end
+
+  defp handle_missing_permission(conn) do
+    conn
+    |> put_flash(
+      :error,
+      "You must have permission to access this page. Please wait for approval."
+    )
+    |> maybe_store_return_to()
+    |> redirect(to: signed_in_path(conn))
+    |> halt()
   end
 
   @doc """
@@ -256,8 +306,10 @@ defmodule RbagElectionsWeb.TokenAuth do
   defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(conn_or_socket) do
-    wahl_slug = get_wahl_slug(conn_or_socket)
-    ~p"/#{wahl_slug}/warteraum"
+    case get_wahl_slug(conn_or_socket) do
+      nil -> ~p"/"
+      wahl_slug -> ~p"/#{wahl_slug}/warteraum"
+    end
   end
 
   defp get_wahl_slug(%Plug.Conn{} = conn) do
