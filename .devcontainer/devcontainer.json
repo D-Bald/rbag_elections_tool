@@ -10,7 +10,8 @@
             },
             "extensions": [
                 "jakebecker.elixir-ls",
-                "mhutchie.git-graph"
+                "gxl.git-graph-3",
+                "ms-ossdata.vscode-pgsql"
             ]
         }
     },
