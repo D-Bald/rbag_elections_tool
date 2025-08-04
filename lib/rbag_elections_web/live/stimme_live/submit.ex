@@ -9,7 +9,19 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
   def render(assigns) do
     ~H"""
     <div>
-      <%= if @has_active_voting do %>
+      <%= if @abgegeben do %>
+        <.header>
+          Du hast bereits abgestimmt.
+        </.header>
+        <p class="text-lg mt-4">Vielen Dank!</p>
+      <% end %>
+      <%= if(not @has_active_voting) do %>
+        <.header>
+          Wartezimmer
+        </.header>
+        <p class="text-lg mt-4">Es gibt aktuell keine laufende Abstimmung. Bitte warten.</p>
+      <% end %>
+      <%= if @has_active_voting and not @abgegeben do %>
         <.header>
           Abstimmen für Position {@position.name}
         </.header>
@@ -27,11 +39,6 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
             <.button phx-disable-with="Einreichen...">Abstimmen</.button>
           </:actions>
         </.simple_form>
-      <% else %>
-        <.header>
-          Wartezimmer
-        </.header>
-        <p class="text-lg mt-4">Es gibt aktuell keine laufende Abstimmung. Bitte warten.</p>
       <% end %>
     </div>
     """
@@ -46,19 +53,22 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
       Abstimmungen.subscribe(wahl_slug)
     end
 
+    socket = assign(socket, :wahl_slug, wahl_slug)
+
+    # TODO: Get abgabe status from DB to determine if user has already voted
+    socket = assign(socket, :abgegeben, false)
+
     case Wahlen.get_aktuelle_abstimmung_with_position_and_options(wahl_slug) do
-      nil ->
+      {:error, _} ->
         {:ok,
          socket
-         |> assign(:wahl_slug, wahl_slug)
          |> assign(:has_active_voting, false)
          |> assign(:position, nil)
          |> assign(:form, nil)}
 
-      abstimmung ->
+      {:ok, abstimmung} ->
         {:ok,
          socket
-         |> assign(:wahl_slug, wahl_slug)
          |> assign(:has_active_voting, true)
          |> assign(:position, abstimmung.position)
          |> assign(:form, to_form(Abstimmungen.change_stimme(%Stimme{})))}
@@ -75,11 +85,19 @@ defmodule RbagElectionsWeb.StimmeLive.Submit do
         option.id == String.to_integer(option_id)
       end)
 
-    Abstimmungen.abgeben(wahl_slug, option, token)
+    case Abstimmungen.abgeben(wahl_slug, option, token) do
+      {:error, :already_voted} ->
+        {:noreply,
+         socket
+         |> assign(:abgegeben, true)
+         |> put_flash(:error, "Du hast bereits abgestimmt.")}
 
-    {:noreply,
-     socket
-     |> put_flash(:info, "Deine Stimme wird gezählt")}
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> assign(:abgegeben, true)
+         |> put_flash(:info, "Deine Stimme wird gezählt")}
+    end
   end
 
   @impl true

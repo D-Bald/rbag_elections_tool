@@ -18,17 +18,6 @@ defmodule RbagElections.Freigabe do
 
   defp topic(wahl_slug), do: "freigabe:#{wahl_slug}"
 
-  def stelle_anfrage_auf_freigabe(token_value, wahl_slug) do
-    with {:ok, wahl} <- Wahlen.get_wahl_by_slug(wahl_slug) do
-      token = get_token_by_session_token_value(token_value)
-      # TODO add error handling: What if token is nil?
-      # TODO: do all this in one transaction
-      %WahlFreigabe{token_id: token.id, wahl_id: wahl.id}
-      |> WahlFreigabe.changeset()
-      |> Repo.insert()
-    end
-  end
-
   def list_offene_freigaben(wahl_slug) do
     list_freigaben(wahl_slug, :offen)
   end
@@ -51,6 +40,38 @@ defmodule RbagElections.Freigabe do
   end
 
   @doc """
+  Creates a new WahlFreigabe.
+
+  ## Examples
+
+      iex> erteilen(token_value, wahl_slug)
+      {:ok, %WahlFreigabe{}}
+
+      iex> erteilen(bad_token_value, bad_wahl_slug)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def stelle_anfrage_auf_freigabe(token_value, wahl_slug) do
+    with {:ok, wahl} <- Wahlen.get_wahl_by_slug(wahl_slug) do
+      token = get_token_by_session_token_value(token_value)
+      # TODO add error handling: What if token is nil?
+      # TODO: do all this in one transaction
+      %WahlFreigabe{token_id: token.id, wahl_id: wahl.id}
+      |> WahlFreigabe.changeset()
+      |> Repo.insert()
+      |> case do
+        {:ok, wahl_freigabe} ->
+          wahl_freigabe = Repo.preload(wahl_freigabe, :token)
+          broadcast_event(%Events.FreigabeAngefragt{wahl_freigabe: wahl_freigabe})
+          {:ok, wahl_freigabe}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
   Confirms a token.
 
   ## Examples
@@ -68,7 +89,8 @@ defmodule RbagElections.Freigabe do
     |> Repo.update()
     |> case do
       {:ok, wahl_freigabe} ->
-        broadcast_freigabe_erteilt(wahl_freigabe)
+        wahl_freigabe = Repo.preload(wahl_freigabe, :token)
+        broadcast_event(%Events.FreigabeErteilt{wahl_freigabe: wahl_freigabe})
         {:ok, wahl_freigabe}
 
       {:error, changeset} ->
@@ -94,7 +116,8 @@ defmodule RbagElections.Freigabe do
     |> Repo.update()
     |> case do
       {:ok, wahl_freigabe} ->
-        broadcast_freigabe_abgelehnt(wahl_freigabe)
+        wahl_freigabe = Repo.preload(wahl_freigabe, :token)
+        broadcast_event(%Events.FreigabeAbgelehnt{wahl_freigabe: wahl_freigabe})
         {:ok, wahl_freigabe}
 
       {:error, changeset} ->
@@ -102,24 +125,17 @@ defmodule RbagElections.Freigabe do
     end
   end
 
-  defp broadcast_freigabe_erteilt(%WahlFreigabe{} = wahl_freigabe) do
-    wahl = RbagElections.Wahlen.get_wahl!(wahl_freigabe.wahl_id)
-    broadcast!(wahl.slug, %Events.FreigabeErteilt{wahl_freigabe: wahl_freigabe})
-  end
-
-  defp broadcast_freigabe_abgelehnt(%WahlFreigabe{} = wahl_freigabe) do
-    wahl = RbagElections.Wahlen.get_wahl!(wahl_freigabe.wahl_id)
-    broadcast!(wahl.slug, %Events.FreigabeAbgelehnt{wahl_freigabe: wahl_freigabe})
+  @spec broadcast_event(Events.WahlRelation.t()) :: :ok
+  defp broadcast_event(event) do
+    wahl = Events.WahlRelation.wahl_id(event) |> RbagElections.Wahlen.get_wahl!()
+    broadcast!(wahl.slug, event)
   end
 
   defp broadcast!(wahl_slug, msg) do
     Phoenix.PubSub.broadcast!(@pubsub, topic(wahl_slug), msg)
   end
 
-  @spec erteilt(
-          %RbagElections.Freigabe.Token{},
-          %RbagElections.Wahlen.Wahl{}
-        ) :: {:ok, boolean()} | {:error, :not_found}
+  @spec erteilt(Token.t(), Wahl.t()) :: {:ok, boolean()} | {:error, :not_found}
   def erteilt(%Token{} = token, %Wahl{} = wahl) do
     case Repo.get_by(WahlFreigabe, token_id: token.id, wahl_id: wahl.id) do
       nil ->

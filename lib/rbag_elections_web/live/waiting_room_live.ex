@@ -39,6 +39,7 @@ defmodule RbagElectionsWeb.WarteRaumLive do
   @doc """
   Listening to the Freigabe PubSub event.
   """
+  @impl true
   def handle_info(%Freigabe.Events.FreigabeErteilt{wahl_freigabe: wahl_freigabe}, socket) do
     if wahl_freigabe.token_id == socket.assigns.current_token.id do
       {:noreply, redirect(socket, to: "/#{socket.assigns.wahl_slug}")}
@@ -47,11 +48,18 @@ defmodule RbagElectionsWeb.WarteRaumLive do
     end
   end
 
+  @impl true
   def handle_info(%Freigabe.Events.FreigabeAbgelehnt{wahl_freigabe: wahl_freigabe}, socket) do
     if wahl_freigabe.token_id == socket.assigns.current_token.id do
       {:noreply, put_flash(socket, :error, "Deine Freigabe wurde abgelehnt.")}
     else
       {:noreply, socket}
     end
+  end
+
+  # Ignore other messages
+  @impl true
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
   end
 end

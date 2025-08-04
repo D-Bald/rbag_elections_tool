@@ -5,6 +5,17 @@ defmodule RbagElections.Freigabe.Token do
 
   @rand_size 32
 
+  @type id :: integer()
+  @type t :: %__MODULE__{
+          id: id() | nil,
+          value: binary() | nil,
+          besitzer: String.t() | nil,
+          wahlfreigaben:
+            [RbagElections.Freigabe.WahlFreigabe.t()] | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "tokens" do
     field :value, :binary
     field :besitzer, :string

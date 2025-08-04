@@ -5,23 +5,31 @@ defmodule RbagElections.Abstimmungen do
 
   import Ecto.Query, warn: false
   alias RbagElections.Repo
-
-  alias RbagElections.Abstimmungen.Abstimmung
-  alias RbagElections.Abstimmungen.Abgabe
+  alias RbagElections.Abstimmungen.{Abgabe, Abstimmung, Events}
   alias RbagElections.Wahlen
   alias RbagElections.Wahlen.{Option, Position}
   alias RbagElections.Freigabe.Token
 
   @pubsub RbagElections.PubSub
-  @topic_prefix "abstimmung:"
-  @abgabe_topic_prefix "abgabe:"
+
+  defp topic(wahl_slug), do: "abstimmung:#{wahl_slug}"
+
+  defp abgabe_topic(abstimmung_id), do: "abgabe:#{abstimmung_id}"
 
   @doc """
   Subscribes the current process to updates for a specific wahl_slug.
   This will receive events when voting sessions start or end.
   """
   def subscribe(wahl_slug) when is_binary(wahl_slug) do
-    Phoenix.PubSub.subscribe(@pubsub, @topic_prefix <> wahl_slug)
+    Phoenix.PubSub.subscribe(@pubsub, topic(wahl_slug))
+  end
+
+  @doc """
+  Subscribes the current process to Abgaben for a specific Abstimmung.
+  This will receive events when someone submits a vote for the election.
+  """
+  def subscribe_to_abgaben(%Abstimmung{} = abstimmung) do
+    Phoenix.PubSub.subscribe(@pubsub, abgabe_topic(abstimmung.id))
   end
 
   @doc """
@@ -82,11 +90,11 @@ defmodule RbagElections.Abstimmungen do
     # TODO: Validate, that Wahl has no other aktuelle_abstimmung!
     with {:ok, _abstimmung} <- create_abstimmung(%{wahl_id: wahl_id, position_id: position_id}),
          wahl <- Wahlen.get_wahl!(wahl_id),
-         abstimmung <- get_aktuelle_abstimmung_with_position_and_options(wahl) do
+         {:ok, abstimmung} <- get_aktuelle_abstimmung_with_position_and_options(wahl) do
       # TODO: Event struct für msg
       Phoenix.PubSub.broadcast(
         @pubsub,
-        @topic_prefix <> wahl.slug,
+        topic(wahl.slug),
         {:abstimmung_started, abstimmung}
       )
 
@@ -117,7 +125,7 @@ defmodule RbagElections.Abstimmungen do
       # TODO: Event struct für msg
       Phoenix.PubSub.broadcast(
         @pubsub,
-        @topic_prefix <> wahl.slug,
+        topic(wahl.slug),
         {:abstimmung_ended, updated_abstimmung}
       )
 
@@ -372,10 +380,6 @@ defmodule RbagElections.Abstimmungen do
     Stimme.changeset(stimme, attrs)
   end
 
-  def subscribe_to_abgaben(%Abstimmung{} = abstimmung) do
-    Phoenix.PubSub.subscribe(@pubsub, @abgabe_topic_prefix <> abstimmung.id)
-  end
-
   def abgeben(wahl_slug, %Option{} = option, %Token{} = token) when is_binary(wahl_slug) do
     with {:ok, abstimmung} <- Wahlen.get_aktuelle_abstimmung(wahl_slug) do
       abgeben(abstimmung, option, token)
@@ -387,15 +391,24 @@ defmodule RbagElections.Abstimmungen do
     Repo.transaction(fn ->
       with {:ok, _abgabe} <- create_abgabe(%{abstimmung_id: abstimmung.id, token_id: token.id}),
            {:ok, stimme} <- create_stimme(%{abstimmung_id: abstimmung.id, option_id: option.id}) do
-        # TODO: Create event struct for message
-        Phoenix.PubSub.broadcast(@pubsub, @abgabe_topic_prefix <> abstimmung.id, %{
+        Phoenix.PubSub.broadcast(@pubsub, abgabe_topic(abstimmung.id), %Events.AbgabeEingereicht{
           token_id: token.id
         })
 
         {:ok, stimme}
       else
         {:error, changeset} ->
-          Repo.rollback(changeset)
+          already_voted? =
+            Enum.any?(changeset.errors, fn
+              {:token_id, {"has already been taken", _}} -> true
+              _ -> false
+            end)
+
+          if already_voted? do
+            Repo.rollback(:already_voted)
+          else
+            Repo.rollback(changeset)
+          end
       end
     end)
   end
@@ -427,17 +440,31 @@ defmodule RbagElections.Abstimmungen do
 
   """
   def get_aktuelle_abstimmung(%Wahlen.Wahl{} = wahl) do
-    Repo.get_by(Abstimmung, wahl_id: wahl.id)
+    case Repo.get_by(Abstimmung, wahl_id: wahl.id) do
+      nil -> {:error, "No Abstimmung found for Wahl with slug #{wahl.slug}"}
+      abstimmung -> {:ok, abstimmung}
+    end
   end
 
   @doc """
   Returns the one Abstimmungen that has a reference to the wahl with preloaded position and its options.
+
+  ## Examples
+
+      iex> get_abstimmung_by_wahl_slug(some-slug)
+      {:ok, %Abstimmung{}}
+
+      iex> get_abstimmung_by_wahl_slug(NoSlug!)
+       {:error, "No Abstimmung found for Wahl with slug NoSlug"}
   """
   def get_aktuelle_abstimmung_with_position_and_options(%Wahlen.Wahl{} = wahl) do
-    Abstimmung
-    |> where(wahl_id: ^wahl.id)
-    |> preload(position: :optionen)
-    |> Repo.one()
+    case Abstimmung
+         |> where(wahl_id: ^wahl.id)
+         |> preload(position: :optionen)
+         |> Repo.one() do
+      nil -> {:error, "No Abstimmung found for Wahl with slug #{wahl.slug}"}
+      abstimmung -> {:ok, abstimmung}
+    end
   end
 
   def get_position_with_options(abstimmung_id) do

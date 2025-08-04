@@ -13,6 +13,17 @@ defmodule RbagElections.Management.AdminToken do
   @change_email_validity_in_days 7
   @session_validity_in_days 60
 
+  @type id :: integer()
+  @type t :: %__MODULE__{
+          id: id() | nil,
+          token: binary() | nil,
+          context: String.t() | nil,
+          sent_to: String.t() | nil,
+          admin_id: RbagElections.Management.Admin.id() | nil,
+          admin: RbagElections.Management.Admin.t() | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: DateTime.t() | nil
+        }
+
   schema "admins_tokens" do
     field :token, :binary
     field :context, :string

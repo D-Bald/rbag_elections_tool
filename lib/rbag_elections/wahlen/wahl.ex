@@ -2,6 +2,17 @@ defmodule RbagElections.Wahlen.Wahl do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type id :: integer()
+  @type t :: %__MODULE__{
+          id: id() | nil,
+          slug: String.t() | nil,
+          aktuelle_abstimmung:
+            RbagElections.Abstimmungen.Abstimmung.t() | Ecto.Association.NotLoaded.t() | nil,
+          positionen: [RbagElections.Wahlen.Position.t()] | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   @derive {Phoenix.Param, key: :slug}
   schema "wahlen" do
     field :slug, :string

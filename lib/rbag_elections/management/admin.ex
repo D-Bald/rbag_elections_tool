@@ -2,6 +2,18 @@ defmodule RbagElections.Management.Admin do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type id :: integer()
+  @type t :: %__MODULE__{
+          id: id() | nil,
+          email: String.t() | nil,
+          password: String.t() | nil,
+          hashed_password: String.t() | nil,
+          current_password: String.t() | nil,
+          confirmed_at: DateTime.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "admins" do
     field :email, :string
     field :password, :string, virtual: true, redact: true

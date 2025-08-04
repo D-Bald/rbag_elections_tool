@@ -5,6 +5,17 @@ defmodule RbagElections.Freigabe.WahlFreigabe do
   alias RbagElections.Freigabe.Token
   alias RbagElections.Wahlen.Wahl
 
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          status: :offen | :erteilt | :abgelehnt,
+          token_id: Token.id() | nil,
+          token: Token.t() | Ecto.Association.NotLoaded.t() | nil,
+          wahl_id: Wahl.id() | nil,
+          wahl: Wahl.t() | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   schema "wahl_freigaben" do
     field :status, Ecto.Enum, values: [:offen, :erteilt, :abgelehnt], default: :offen
 

@@ -2,8 +2,18 @@ defmodule RbagElections.Abstimmungen.Stimme do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type id :: binary()
+  @type t :: %__MODULE__{
+          id: id() | nil,
+          abstimmung_id: RbagElections.Abstimmungen.Abstimmung.id() | nil,
+          abstimmung:
+            RbagElections.Abstimmungen.Abstimmung.t() | Ecto.Association.NotLoaded.t() | nil,
+          option_id: RbagElections.Wahlen.Option.id() | nil,
+          option: RbagElections.Wahlen.Option.t() | Ecto.Association.NotLoaded.t() | nil
+        }
+
+  @primary_key {:id, Ecto.UUID, autogenerate: true}
   schema "stimmen" do
-    @primary_key {:id, :binary_id, autogenerate: true}
     belongs_to :abstimmung, RbagElections.Abstimmungen.Abstimmung
     belongs_to :option, RbagElections.Wahlen.Option
   end
