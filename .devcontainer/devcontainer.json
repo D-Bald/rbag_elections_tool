@@ -11,9 +11,15 @@
             "extensions": [
                 "jakebecker.elixir-ls",
                 "gxl.git-graph-3",
-                "ms-ossdata.vscode-pgsql"
+                "ms-ossdata.vscode-pgsql",
+                "github.copilot",
+                "github.copilot-chat"
             ]
         }
     },
-    "postCreateCommand": "echo 'export FLYCTL_INSTALL=\"/root/.fly\"' >> ~/.bashrc && echo 'export PATH=\"$FLYCTL_INSTALL/bin:$PATH\"' >> ~/.bashrc && source ~/.bashrc"
+    "postCreateCommand": "echo 'export FLYCTL_INSTALL=\"/root/.fly\"' >> ~/.bashrc && echo 'export PATH=\"$FLYCTL_INSTALL/bin:$PATH\"' >> ~/.bashrc && curl -sL -o /usr/local/bin/tidewave https://github.com/tidewave-ai/tidewave_app/releases/latest/download/tidewave-cli-aarch64-unknown-linux-musl && chmod +x /usr/local/bin/tidewave",
+    "postStartCommand": "nohup tidewave --port 9000 > /tmp/tidewave.log 2>&1 &",
+    "forwardPorts": [
+        9000
+    ]
 }

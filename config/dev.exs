@@ -4,7 +4,7 @@ import Config
 config :rbag_elections, RbagElections.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "db",
+  hostname: "postgres-db",
   database: "rbag_elections_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
@@ -78,6 +78,7 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   # Include HEEx debug annotations as HTML comments in rendered markup
   debug_heex_annotations: true,
+  debug_attributes: true,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
 
